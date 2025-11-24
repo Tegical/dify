@@ -1,5 +1,5 @@
 # base image
-FROM python:3.12-slim-bookworm AS base
+FROM harbor.tegical.world/docker.io/python:3.12-slim-bookworm AS base
 
 WORKDIR /app/api
 
