@@ -25,6 +25,7 @@ from extensions.ext_database import db
 from fields.base import ResponseModel
 from libs.helper import dump_response
 from libs.login import login_required
+from libs.token import get_samesite_policy, is_secure
 from models.account import Account
 from models.provider_ids import TriggerProviderID
 from services.plugin.oauth_service import OAuthProxyService
@@ -585,7 +586,8 @@ class TriggerOAuthAuthorizeApi(Resource):
                 "context_id",
                 context_id,
                 httponly=True,
-                samesite="Lax",
+                secure=is_secure(),
+                samesite=get_samesite_policy(),
                 max_age=OAuthProxyService.__MAX_AGE__,
             )
 

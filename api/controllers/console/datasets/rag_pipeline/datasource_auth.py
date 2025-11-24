@@ -28,6 +28,7 @@ from fields.base import ResponseModel
 from graphon.model_runtime.errors.validate import CredentialsValidateFailedError
 from libs.helper import dump_response
 from libs.login import login_required
+from libs.token import get_samesite_policy, is_secure
 from models import Account
 from models.provider_ids import DatasourceProviderID
 from services.datasource_provider_service import DatasourceProviderService
@@ -197,7 +198,8 @@ class DatasourcePluginOAuthAuthorizationUrl(Resource):
             "context_id",
             context_id,
             httponly=True,
-            samesite="Lax",
+            secure=is_secure(),
+            samesite=get_samesite_policy(),
             max_age=OAuthProxyService.__MAX_AGE__,
         )
         return response
