@@ -581,7 +581,7 @@ def test_app_list_uses_injected_session_for_draft_workflows(
     monkeypatch.setattr(app_module, "db", SimpleNamespace(session=scoped_session))
 
     with app.test_request_context("/console/api/apps?page=1&limit=20", method="GET"):
-        response, status = method("tenant-1", "user-1", session)
+        response, status = method("tenant-1", SimpleNamespace(id="user-1", is_admin_or_owner=True), session)
 
     assert status == 200
     assert response["data"][0]["has_draft_trigger"] is True
@@ -699,13 +699,43 @@ def test_app_list_api_attaches_permission_keys(app, app_module):
 
             session = MagicMock()
             session.execute.return_value.scalars.return_value.all.return_value = []
-            resp, status = method(app_module.AppListApi(), "tenant-1", "acct-1", session)
+            resp, status = method(
+                app_module.AppListApi(), "tenant-1", SimpleNamespace(id="acct-1", is_admin_or_owner=True), session
+            )
 
     assert status == 200
     params = get_paginate_apps.call_args.args[2]
     assert params.accessible_app_ids is None
     assert params.is_created_by_me is None
     assert resp["data"][0]["permission_keys"] == ["app.acl.view_layout", "app.acl.edit"]
+
+
+def test_app_list_api_limits_non_admin_to_apps_created_by_current_user(app, app_module):
+    method = app_module.AppListApi.get
+    while hasattr(method, "__wrapped__"):
+        method = method.__wrapped__
+
+    pagination = SimpleNamespace(page=1, per_page=20, total=0, has_next=False, items=[])
+    get_paginate_apps = MagicMock(return_value=pagination)
+    current_user = SimpleNamespace(id="acct-1", is_admin_or_owner=False)
+
+    with app.test_request_context("/apps"):
+        with pytest.MonkeyPatch.context() as monkeypatch:
+            monkeypatch.setattr(app_module.dify_config, "RBAC_ENABLED", False)
+            monkeypatch.setattr(app_module.AppService, "get_paginate_apps", get_paginate_apps)
+            monkeypatch.setattr(
+                app_module.enterprise_rbac_service.RBACService.MyPermissions,
+                "get",
+                lambda tenant_id, account_id, session: app_module.enterprise_rbac_service.MyPermissionsResponse(),
+            )
+
+            response, status = method(app_module.AppListApi(), "tenant-1", current_user, MagicMock())
+
+    assert status == 200
+    assert response["data"] == []
+    params = get_paginate_apps.call_args.args[2]
+    assert params.creator_ids == ["acct-1"]
+    assert params.is_created_by_me is None
 
 
 def test_app_list_api_limits_to_apps_created_by_current_user_without_view_permission(app, app_module):
@@ -741,7 +771,9 @@ def test_app_list_api_limits_to_apps_created_by_current_user_without_view_permis
             )
 
             session = MagicMock()
-            resp, status = method(app_module.AppListApi(), "tenant-1", "acct-1", session)
+            resp, status = method(
+                app_module.AppListApi(), "tenant-1", SimpleNamespace(id="acct-1", is_admin_or_owner=True), session
+            )
 
     assert status == 200
     assert resp["data"] == []
@@ -799,7 +831,9 @@ def test_app_list_api_limits_to_preview_overrides_without_manage_own_permission(
             )
 
             session = MagicMock()
-            method(app_module.AppListApi(), "tenant-1", "acct-1", session)
+            method(
+                app_module.AppListApi(), "tenant-1", SimpleNamespace(id="acct-1", is_admin_or_owner=True), session
+            )
 
     params = get_paginate_apps.call_args.args[2]
     assert params.accessible_app_ids == ["app-acl-shared", "app-full", "app-shared", "app-whitelist-only"]
@@ -836,7 +870,9 @@ def test_app_list_api_returns_no_apps_without_workspace_or_resource_view_permiss
             )
 
             session = MagicMock()
-            method(app_module.AppListApi(), "tenant-1", "acct-1", session)
+            method(
+                app_module.AppListApi(), "tenant-1", SimpleNamespace(id="acct-1", is_admin_or_owner=True), session
+            )
 
     params = get_paginate_apps.call_args.args[2]
     assert params.accessible_app_ids == ["app-not-permitted"]

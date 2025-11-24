@@ -586,10 +586,11 @@ class AppListApi(Resource):
     @account_initialization_required
     @enterprise_license_required
     @with_session(write=False)
-    @with_current_user_id
+    @with_current_user
     @with_current_tenant_id
-    def get(self, current_tenant_id: str, current_user_id: str, session: Session):
+    def get(self, current_tenant_id: str, current_user: Account, session: Session):
         """Get app list"""
+        current_user_id = str(current_user.id)
         args = query_params_from_request(AppListQuery, list_fields=APP_LIST_QUERY_ARRAY_FIELDS)
         params = AppListParams(
             page=args.page,
@@ -601,6 +602,9 @@ class AppListApi(Resource):
             creator_ids=args.creator_ids,
             is_created_by_me=args.is_created_by_me,
         )
+
+        if not dify_config.RBAC_ENABLED and not current_user.is_admin_or_owner:
+            params.creator_ids = [current_user_id]
 
         permissions = enterprise_rbac_service.RBACService.MyPermissions.get(
             str(current_tenant_id),
