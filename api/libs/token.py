@@ -45,6 +45,23 @@ def get_samesite_policy() -> str:
     return samesite
 
 
+def should_set_secure(samesite: str | None = None) -> bool:
+    """决定是否应该设置 Secure 属性
+
+    当 SameSite=None 时，必须设置 Secure 属性，否则浏览器会拒绝该 Cookie。
+    其他情况根据 URL 配置是否为 HTTPS 决定。
+    """
+    if samesite is None:
+        samesite = get_samesite_policy()
+
+    # SameSite=None 必须配合 Secure
+    if samesite == "None":
+        return True
+
+    # 其他情况根据 URL 是否为 HTTPS 决定
+    return is_secure()
+
+
 def _cookie_domain() -> str | None:
     """
     Returns the normalized cookie domain.
@@ -123,7 +140,7 @@ def set_access_token_to_cookie(request: Request, response: Response, token: str,
         value=token,
         httponly=True,
         domain=_cookie_domain(),
-        secure=is_secure(),
+        secure=should_set_secure(samesite),
         samesite=samesite,
         max_age=int(dify_config.ACCESS_TOKEN_EXPIRE_MINUTES * 60),
         path="/",
@@ -138,7 +155,7 @@ def set_refresh_token_to_cookie(request: Request, response: Response, token: str
         value=token,
         httponly=True,
         domain=_cookie_domain(),
-        secure=is_secure(),
+        secure=should_set_secure(samesite),
         samesite=samesite,
         max_age=int(60 * 60 * 24 * dify_config.REFRESH_TOKEN_EXPIRE_DAYS),
         path="/",
@@ -153,7 +170,7 @@ def set_csrf_token_to_cookie(request: Request, response: Response, token: str, s
         value=token,
         httponly=False,
         domain=_cookie_domain(),
-        secure=is_secure(),
+        secure=should_set_secure(samesite),
         samesite=samesite,
         max_age=int(60 * dify_config.ACCESS_TOKEN_EXPIRE_MINUTES),
         path="/",
@@ -163,35 +180,37 @@ def set_csrf_token_to_cookie(request: Request, response: Response, token: str, s
 def _clear_cookie(
     response: Response,
     cookie_name: str,
-    samesite: str = "Lax",
+    samesite: str | None = None,
     http_only: bool = True,
 ):
+    if samesite is None:
+        samesite = get_samesite_policy()
     response.set_cookie(
         _real_cookie_name(cookie_name),
         "",
         expires=0,
         path="/",
         domain=_cookie_domain(),
-        secure=is_secure(),
+        secure=should_set_secure(samesite),
         httponly=http_only,
         samesite=samesite,
     )
 
 
-def clear_access_token_from_cookie(response: Response, samesite: str = "Lax"):
+def clear_access_token_from_cookie(response: Response, samesite: str | None = None):
     _clear_cookie(response, COOKIE_NAME_ACCESS_TOKEN, samesite)
 
 
-def clear_webapp_access_token_from_cookie(response: Response, samesite: str = "Lax"):
+def clear_webapp_access_token_from_cookie(response: Response, samesite: str | None = None):
     _clear_cookie(response, COOKIE_NAME_WEBAPP_ACCESS_TOKEN, samesite)
 
 
-def clear_refresh_token_from_cookie(response: Response):
-    _clear_cookie(response, COOKIE_NAME_REFRESH_TOKEN)
+def clear_refresh_token_from_cookie(response: Response, samesite: str | None = None):
+    _clear_cookie(response, COOKIE_NAME_REFRESH_TOKEN, samesite)
 
 
-def clear_csrf_token_from_cookie(response: Response):
-    _clear_cookie(response, COOKIE_NAME_CSRF_TOKEN, http_only=False)
+def clear_csrf_token_from_cookie(response: Response, samesite: str | None = None):
+    _clear_cookie(response, COOKIE_NAME_CSRF_TOKEN, samesite, http_only=False)
 
 
 def build_force_logout_cookie_headers() -> list[str]:
