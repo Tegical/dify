@@ -30,6 +30,21 @@ def is_secure() -> bool:
     return dify_config.CONSOLE_WEB_URL.startswith("https") and dify_config.CONSOLE_API_URL.startswith("https")
 
 
+def get_samesite_policy() -> str:
+    """获取配置的 SameSite 策略，并进行安全校验"""
+    samesite = dify_config.COOKIE_SAMESITE
+
+    # 安全校验：SameSite=None 必须配合 HTTPS
+    if samesite == "None" and not is_secure():
+        logger.warning(
+            "COOKIE_SAMESITE=None requires HTTPS. "
+            "Current configuration uses HTTP, which will cause cookies to be rejected by browsers. "
+            "Please enable HTTPS or set COOKIE_SAMESITE=Lax"
+        )
+
+    return samesite
+
+
 def _cookie_domain() -> str | None:
     """
     Returns the normalized cookie domain.
@@ -100,7 +115,9 @@ def extract_webapp_passport(app_code: str, request: Request) -> str | None:
     return ret
 
 
-def set_access_token_to_cookie(request: Request, response: Response, token: str, samesite: str = "Lax"):
+def set_access_token_to_cookie(request: Request, response: Response, token: str, samesite: str | None = None):
+    if samesite is None:
+        samesite = get_samesite_policy()
     response.set_cookie(
         _real_cookie_name(COOKIE_NAME_ACCESS_TOKEN),
         value=token,
@@ -113,27 +130,31 @@ def set_access_token_to_cookie(request: Request, response: Response, token: str,
     )
 
 
-def set_refresh_token_to_cookie(request: Request, response: Response, token: str):
+def set_refresh_token_to_cookie(request: Request, response: Response, token: str, samesite: str | None = None):
+    if samesite is None:
+        samesite = get_samesite_policy()
     response.set_cookie(
         _real_cookie_name(COOKIE_NAME_REFRESH_TOKEN),
         value=token,
         httponly=True,
         domain=_cookie_domain(),
         secure=is_secure(),
-        samesite="Lax",
+        samesite=samesite,
         max_age=int(60 * 60 * 24 * dify_config.REFRESH_TOKEN_EXPIRE_DAYS),
         path="/",
     )
 
 
-def set_csrf_token_to_cookie(request: Request, response: Response, token: str):
+def set_csrf_token_to_cookie(request: Request, response: Response, token: str, samesite: str | None = None):
+    if samesite is None:
+        samesite = get_samesite_policy()
     response.set_cookie(
         _real_cookie_name(COOKIE_NAME_CSRF_TOKEN),
         value=token,
         httponly=False,
         domain=_cookie_domain(),
         secure=is_secure(),
-        samesite="Lax",
+        samesite=samesite,
         max_age=int(60 * dify_config.ACCESS_TOKEN_EXPIRE_MINUTES),
         path="/",
     )

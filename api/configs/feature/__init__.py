@@ -396,6 +396,11 @@ class HttpConfig(BaseSettings):
         default="",
     )
 
+    COOKIE_SAMESITE: str = Field(
+        description="Cookie SameSite policy: Lax, Strict, or None. Use 'None' for iframe embedding (requires HTTPS)",
+        default="Lax",
+    )
+
     API_COMPRESSION_ENABLED: bool = Field(
         description="Enable or disable gzip compression for HTTP responses",
         default=False,

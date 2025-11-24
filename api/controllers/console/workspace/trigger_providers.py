@@ -16,6 +16,7 @@ from core.trigger.entities.entities import SubscriptionBuilderUpdater
 from core.trigger.trigger_manager import TriggerManager
 from extensions.ext_database import db
 from libs.login import current_user, login_required
+from libs.token import get_samesite_policy, is_secure
 from models.account import Account
 from models.provider_ids import TriggerProviderID
 from services.plugin.oauth_service import OAuthProxyService
@@ -368,7 +369,8 @@ class TriggerOAuthAuthorizeApi(Resource):
                 "context_id",
                 context_id,
                 httponly=True,
-                samesite="Lax",
+                secure=is_secure(),
+                samesite=get_samesite_policy(),
                 max_age=OAuthProxyService.__MAX_AGE__,
             )
 

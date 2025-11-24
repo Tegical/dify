@@ -10,6 +10,7 @@ from core.model_runtime.utils.encoders import jsonable_encoder
 from core.plugin.impl.oauth import OAuthHandler
 from libs.helper import StrLen
 from libs.login import current_account_with_tenant, login_required
+from libs.token import get_samesite_policy, is_secure
 from models.provider_ids import DatasourceProviderID
 from services.datasource_provider_service import DatasourceProviderService
 from services.plugin.oauth_service import OAuthProxyService
@@ -59,7 +60,8 @@ class DatasourcePluginOAuthAuthorizationUrl(Resource):
             "context_id",
             context_id,
             httponly=True,
-            samesite="Lax",
+            secure=is_secure(),
+            samesite=get_samesite_policy(),
             max_age=OAuthProxyService.__MAX_AGE__,
         )
         return response
