@@ -7,8 +7,10 @@
 ### 版本管理
 - `version-upgrade.md` - Dify 版本升级指南，记录如何从一个版本升级到另一个版本并保留自定义修改
 
-### 自定义说明
-- `customizations.md` - 当前应用的所有自定义修改清单
+### 自定义修改记录
+- `customizations/` - 自定义修改历史记录目录，按日期记录每次修改
+  - `README.md` - 自定义修改记录索引和使用说明
+  - `20251124-initial-customizations.md` - 初始 UI 定制（当前最新）
 
 ## 分支策略
 
