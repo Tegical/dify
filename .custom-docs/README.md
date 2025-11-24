@@ -5,6 +5,7 @@
 ## 📚 文档列表
 
 - **[index.md](./index.md)** - 文档索引，快速了解文档结构
+- **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - 快速参考手册，常用命令速查 ⚡
 - **[version-upgrade.md](./version-upgrade.md)** - 版本升级完整指南 ⭐
 - **[customizations/](./customizations/)** - 自定义修改历史记录目录
   - **[README.md](./customizations/README.md)** - 自定义修改记录索引
