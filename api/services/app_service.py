@@ -31,10 +31,10 @@ logger = logging.getLogger(__name__)
 
 
 class AppService:
-    def get_paginate_apps(self, user_id: str, tenant_id: str, args: dict) -> Pagination | None:
+    def get_paginate_apps(self, user: Account, tenant_id: str, args: dict) -> Pagination | None:
         """
         Get app list with pagination
-        :param user_id: user id
+        :param user: user account
         :param tenant_id: tenant id
         :param args: request args
         :return:
@@ -52,8 +52,14 @@ class AppService:
         elif args["mode"] == "agent-chat":
             filters.append(App.mode == AppMode.AGENT_CHAT)
 
-        if args.get("is_created_by_me", False):
-            filters.append(App.created_by == user_id)
+        # 权限控制：普通用户只能看到自己创建的 app，管理员可以查看所有 app
+        if not user.is_admin_or_owner:
+            # 非管理员用户，强制只显示自己创建的 app
+            filters.append(App.created_by == user.id)
+        elif args.get("is_created_by_me", False):
+            # 管理员用户，尊重 is_created_by_me 参数
+            filters.append(App.created_by == user.id)
+
         if args.get("name"):
             name = args["name"][:30]
             filters.append(App.name.ilike(f"%{name}%"))
