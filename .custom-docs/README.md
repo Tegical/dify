@@ -6,7 +6,9 @@
 
 - **[index.md](./index.md)** - 文档索引，快速了解文档结构
 - **[version-upgrade.md](./version-upgrade.md)** - 版本升级完整指南 ⭐
-- **[customizations.md](./customizations.md)** - 当前所有自定义修改的详细清单
+- **[customizations/](./customizations/)** - 自定义修改历史记录目录
+  - **[README.md](./customizations/README.md)** - 自定义修改记录索引
+  - **[20251124-initial-customizations.md](./customizations/20251124-initial-customizations.md)** - 初始 UI 定制
 
 ## 🎯 使用场景
 
@@ -14,13 +16,13 @@
 👉 阅读 [version-upgrade.md](./version-upgrade.md)，按照场景选择合适的升级策略
 
 ### 场景 2: 了解当前做了哪些自定义
-👉 查看 [customizations.md](./customizations.md)，了解所有修改内容
+👉 查看 [customizations/](./customizations/)，了解所有修改内容和历史记录
 
 ### 场景 3: AI Agent 执行任务前
 👉 先阅读 [index.md](./index.md)，了解项目当前状态
 
 ### 场景 4: 新团队成员入职
-👉 按顺序阅读：index.md → customizations.md → version-upgrade.md
+👉 按顺序阅读：index.md → customizations/README.md → version-upgrade.md
 
 ## 🔄 当前分支策略
 

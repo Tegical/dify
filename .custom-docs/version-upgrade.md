@@ -319,12 +319,15 @@ git branch dev-backup
 ## 最佳实践建议
 
 1. **小步快跑**：不要等待多个大版本才升级，尽量跟随官方节奏升级
-2. **保持文档更新**：每次升级后更新 `customizations.md` 和本文档
+2. **保持文档更新**：每次升级或修改后：
+   - 在 `customizations/` 目录创建新的日期文件
+   - 更新 `customizations/README.md` 的历史记录表格
+   - 更新本文档的"版本升级历史记录"
 3. **自动化测试**：编写自动化测试脚本验证自定义功能
 4. **定期备份**：每个月至少创建一次备份分支
 5. **使用 Git 标签**：重要节点打标签便于回退
 
 ## 相关文档
 
-- [自定义修改清单](./customizations.md)
+- [自定义修改记录](./customizations/)
 - [Dify 官方 CHANGELOG](https://github.com/langgenius/dify/blob/main/CHANGELOG.md)
