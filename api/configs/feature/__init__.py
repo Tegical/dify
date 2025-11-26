@@ -758,6 +758,21 @@ class AuthConfig(BaseSettings):
         default=None,
     )
 
+    RUOYI_CLIENT_ID: str | None = Field(
+        description="RuoyiVuePro OAuth client ID",
+        default=None,
+    )
+
+    RUOYI_CLIENT_SECRET: str | None = Field(
+        description="RuoyiVuePro OAuth client secret",
+        default=None,
+    )
+
+    RUOYI_BASE_URL: str | None = Field(
+        description="RuoyiVuePro system base URL (e.g., http://localhost:48080)",
+        default=None,
+    )
+
     ACCESS_TOKEN_EXPIRE_MINUTES: PositiveInt = Field(
         description="Expiration time for access tokens in minutes",
         default=60,

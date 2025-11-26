@@ -13,7 +13,7 @@ from events.tenant_event import tenant_was_created
 from extensions.ext_database import db
 from libs.datetime_utils import naive_utc_now
 from libs.helper import extract_remote_ip
-from libs.oauth import GitHubOAuth, GoogleOAuth, OAuthUserInfo
+from libs.oauth import GitHubOAuth, GoogleOAuth, OAuthUserInfo, RuoyiOAuth
 from libs.token import (
     set_access_token_to_cookie,
     set_csrf_token_to_cookie,
@@ -49,8 +49,17 @@ def get_oauth_providers():
                 client_secret=dify_config.GOOGLE_CLIENT_SECRET,
                 redirect_uri=dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/google",
             )
+        if not dify_config.RUOYI_CLIENT_ID or not dify_config.RUOYI_CLIENT_SECRET or not dify_config.RUOYI_BASE_URL:
+            ruoyi_oauth = None
+        else:
+            ruoyi_oauth = RuoyiOAuth(
+                client_id=dify_config.RUOYI_CLIENT_ID,
+                client_secret=dify_config.RUOYI_CLIENT_SECRET,
+                redirect_uri=dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/ruoyi",
+                base_url=dify_config.RUOYI_BASE_URL,
+            )
 
-        OAUTH_PROVIDERS = {"github": github_oauth, "google": google_oauth}
+        OAUTH_PROVIDERS = {"github": github_oauth, "google": google_oauth, "ruoyi": ruoyi_oauth}
         return OAUTH_PROVIDERS
 
 
@@ -58,7 +67,12 @@ def get_oauth_providers():
 class OAuthLogin(Resource):
     @api.doc("oauth_login")
     @api.doc(description="Initiate OAuth login process")
-    @api.doc(params={"provider": "OAuth provider name (github/google)", "invite_token": "Optional invitation token"})
+    @api.doc(
+        params={
+            "provider": "OAuth provider name (github/google/ruoyi)",
+            "invite_token": "Optional invitation token",
+        }
+    )
     @api.response(302, "Redirect to OAuth authorization URL")
     @api.response(400, "Invalid provider")
     def get(self, provider: str):
@@ -79,7 +93,7 @@ class OAuthCallback(Resource):
     @api.doc(description="Handle OAuth callback and complete login process")
     @api.doc(
         params={
-            "provider": "OAuth provider name (github/google)",
+            "provider": "OAuth provider name (github/google/ruoyi)",
             "code": "Authorization code from OAuth provider",
             "state": "Optional state parameter (used for invite token)",
         }
