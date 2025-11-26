@@ -308,3 +308,81 @@ class GoogleOAuth(OAuth):
     def _transform_user_info(self, raw_info: JsonObject) -> OAuthUserInfo:
         payload = GOOGLE_RAW_USER_INFO_ADAPTER.validate_python(raw_info)
         return OAuthUserInfo(id=str(payload["sub"]), name="", email=payload["email"])
+
+
+class RuoyiOAuth(OAuth):
+    def __init__(self, client_id: str, client_secret: str, redirect_uri: str, base_url: str):
+        super().__init__(client_id, client_secret, redirect_uri)
+        normalized_base_url = base_url.rstrip("/")
+        self._auth_url = f"{normalized_base_url}/system/oauth2/authorize"
+        self._token_url = f"{normalized_base_url}/system/oauth2/token"
+        self._user_info_url = f"{normalized_base_url}/system/user/profile/get"
+
+    @override
+    def get_authorization_url(
+        self,
+        invite_token: str | None = None,
+        timezone: str | None = None,
+        language: str | None = None,
+        redirect_url: str | None = None,
+    ) -> str:
+        params = {
+            "response_type": "code",
+            "client_id": self.client_id,
+            "redirect_uri": self.redirect_uri,
+            "scope": "user.read",
+        }
+        state = encode_oauth_state(
+            invite_token=invite_token,
+            timezone=timezone,
+            language=language,
+            redirect_url=redirect_url,
+        )
+        if state:
+            params["state"] = state
+        return f"{self._auth_url}?{urllib.parse.urlencode(params)}"
+
+    @override
+    def get_access_token(self, code: str) -> str:
+        credentials = f"{self.client_id}:{self.client_secret}".encode("utf-8")
+        response = _http_client.post(
+            self._token_url,
+            data={"grant_type": "authorization_code", "code": code, "redirect_uri": self.redirect_uri},
+            headers={
+                "Authorization": f"Basic {base64.b64encode(credentials).decode('ascii')}",
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+        )
+        response.raise_for_status()
+        payload = _json_object(response)
+        data = payload.get("data")
+        if payload.get("code") != 0 or not isinstance(data, dict):
+            raise ValueError(f"Error in RuoyiVuePro OAuth: {payload.get('msg', 'Unknown error')}")
+        token = data.get("accessToken") or data.get("access_token")
+        if not isinstance(token, str) or not token:
+            raise ValueError("RuoyiVuePro OAuth response did not contain an access token")
+        return token
+
+    @override
+    def get_raw_user_info(self, token: str) -> JsonObject:
+        response = _http_client.get(self._user_info_url, headers={"Authorization": f"Bearer {token}"})
+        response.raise_for_status()
+        payload = _json_object(response)
+        data = payload.get("data")
+        if payload.get("code") != 0 or not isinstance(data, dict):
+            raise ValueError(f"Error in RuoyiVuePro user info: {payload.get('msg', 'Unknown error')}")
+        return data
+
+    @override
+    def _transform_user_info(self, raw_info: JsonObject) -> OAuthUserInfo:
+        user_id = raw_info.get("id") or raw_info.get("userId") or raw_info.get("user_id")
+        if not isinstance(user_id, (str, int)):
+            raise ValueError("RuoyiVuePro user info did not contain a user ID")
+        user_id_string = str(user_id)
+        name = raw_info.get("nickname") or raw_info.get("username") or raw_info.get("name") or user_id_string
+        email = raw_info.get("email") or f"{user_id_string}@ruoyi.local"
+        return OAuthUserInfo(
+            id=user_id_string,
+            name=name if isinstance(name, str) else user_id_string,
+            email=email if isinstance(email, str) else f"{user_id_string}@ruoyi.local",
+        )

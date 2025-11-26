@@ -15,7 +15,7 @@ from extensions.ext_database import db
 from libs.datetime_utils import naive_utc_now
 from libs.helper import extract_remote_ip
 from libs.helper import timezone as validate_timezone_string
-from libs.oauth import GitHubOAuth, GoogleOAuth, OAuthUserInfo, decode_oauth_state
+from libs.oauth import GitHubOAuth, GoogleOAuth, OAuthUserInfo, RuoyiOAuth, decode_oauth_state
 from libs.token import (
     set_access_token_to_cookie,
     set_csrf_token_to_cookie,
@@ -68,7 +68,17 @@ def get_oauth_providers():
                 redirect_uri=dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/google",
             )
 
-        OAUTH_PROVIDERS = {"github": github_oauth, "google": google_oauth}
+        if not dify_config.RUOYI_CLIENT_ID or not dify_config.RUOYI_CLIENT_SECRET or not dify_config.RUOYI_BASE_URL:
+            ruoyi_oauth = None
+        else:
+            ruoyi_oauth = RuoyiOAuth(
+                client_id=dify_config.RUOYI_CLIENT_ID,
+                client_secret=dify_config.RUOYI_CLIENT_SECRET,
+                redirect_uri=dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/ruoyi",
+                base_url=dify_config.RUOYI_BASE_URL,
+            )
+
+        OAUTH_PROVIDERS = {"github": github_oauth, "google": google_oauth, "ruoyi": ruoyi_oauth}
         return OAUTH_PROVIDERS
 
 
@@ -131,7 +141,7 @@ def _preferred_interface_language(language: str | None = None) -> str:
 class OAuthLogin(Resource):
     @console_ns.doc("oauth_login")
     @console_ns.doc(description="Initiate OAuth login process")
-    @console_ns.doc(params={"provider": "OAuth provider name (github/google)"})
+    @console_ns.doc(params={"provider": "OAuth provider name (github/google/ruoyi)"})
     @console_ns.doc(params=query_params_from_model(OAuthLoginQuery))
     @console_ns.response(302, "Redirect to OAuth authorization URL", console_ns.models[RedirectResponse.__name__])
     @console_ns.response(400, "Invalid provider")
@@ -159,7 +169,7 @@ class OAuthLogin(Resource):
 class OAuthCallback(Resource):
     @console_ns.doc("oauth_callback")
     @console_ns.doc(description="Handle OAuth callback and complete login process")
-    @console_ns.doc(params={"provider": "OAuth provider name (github/google)"})
+    @console_ns.doc(params={"provider": "OAuth provider name (github/google/ruoyi)"})
     @console_ns.doc(params=query_params_from_model(OAuthCallbackQuery))
     @console_ns.response(302, "Redirect to console with access token", console_ns.models[RedirectResponse.__name__])
     @console_ns.response(400, "OAuth process failed")
