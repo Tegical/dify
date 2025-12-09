@@ -9,7 +9,6 @@ from werkzeug.exceptions import Unauthorized
 
 from configs import dify_config
 from constants.languages import languages
-from events.tenant_event import tenant_was_created
 from extensions.ext_database import db
 from libs.datetime_utils import naive_utc_now
 from libs.helper import extract_remote_ip
@@ -24,7 +23,6 @@ from services.account_service import AccountService, RegisterService, TenantServ
 from services.billing_service import BillingService
 from services.errors.account import AccountNotFoundError, AccountRegisterError
 from services.errors.workspace import WorkSpaceNotAllowedCreateError, WorkSpaceNotFoundError
-from services.feature_service import FeatureService
 
 from .. import api, console_ns
 
@@ -198,25 +196,32 @@ def _generate_account(provider: str, user_info: OAuthUserInfo):
     if account:
         tenants = TenantService.get_join_tenants(account)
         if not tenants:
-            if not FeatureService.get_system_features().is_allow_create_workspace:
-                raise WorkSpaceNotAllowedCreateError()
+            # Try to join default workspace if configured
+            if dify_config.OAUTH_DEFAULT_WORKSPACE_ID:
+                from models import Tenant
+
+                default_tenant = db.session.query(Tenant).filter_by(id=dify_config.OAUTH_DEFAULT_WORKSPACE_ID).first()
+                if default_tenant:
+                    TenantService.create_tenant_member(default_tenant, account, role="normal")
+                    account.current_tenant = default_tenant
+                else:
+                    raise WorkSpaceNotFoundError()
             else:
-                new_tenant = TenantService.create_tenant(f"{account.name}'s Workspace")
-                TenantService.create_tenant_member(new_tenant, account, role="owner")
-                account.current_tenant = new_tenant
-                tenant_was_created.send(new_tenant)
+                # No default workspace configured, not allowed to create workspace
+                raise WorkSpaceNotAllowedCreateError()
 
     if not account:
-        if not FeatureService.get_system_features().is_allow_register:
-            if dify_config.BILLING_ENABLED and BillingService.is_email_in_freeze(user_info.email):
-                raise AccountRegisterError(
-                    description=(
-                        "This email account has been deleted within the past "
-                        "30 days and is temporarily unavailable for new account registration"
-                    )
+        # Check for frozen email (billing restriction)
+        if dify_config.BILLING_ENABLED and BillingService.is_email_in_freeze(user_info.email):
+            raise AccountRegisterError(
+                description=(
+                    "This email account has been deleted within the past "
+                    "30 days and is temporarily unavailable for new account registration"
                 )
-            else:
-                raise AccountRegisterError(description=("Invalid email or password"))
+            )
+
+        # For OAuth login, allow auto-registration regardless of ALLOW_REGISTER setting
+        # This enables SSO integration while keeping manual registration disabled
         account_name = user_info.name or "Dify"
         account = RegisterService.register(
             email=user_info.email, name=account_name, password=None, open_id=user_info.id, provider=provider
@@ -230,6 +235,20 @@ def _generate_account(provider: str, user_info: OAuthUserInfo):
             interface_language = languages[0]
         account.interface_language = interface_language
         db.session.commit()
+
+        # Join default workspace if configured
+        if dify_config.OAUTH_DEFAULT_WORKSPACE_ID:
+            from models import Tenant
+
+            default_tenant = db.session.query(Tenant).filter_by(id=dify_config.OAUTH_DEFAULT_WORKSPACE_ID).first()
+            if default_tenant:
+                TenantService.create_tenant_member(default_tenant, account, role="normal")
+                account.current_tenant = default_tenant
+            else:
+                raise WorkSpaceNotFoundError()
+        else:
+            # No default workspace configured, not allowed to create workspace
+            raise WorkSpaceNotAllowedCreateError()
 
     # Link account
     AccountService.link_account_integrate(provider, user_info.id, account)

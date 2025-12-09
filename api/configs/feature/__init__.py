@@ -784,6 +784,12 @@ class AuthConfig(BaseSettings):
         default=None,
     )
 
+    OAUTH_DEFAULT_WORKSPACE_ID: str | None = Field(
+        description="Default workspace ID for OAuth users. "
+        "If set, new OAuth users will automatically join this workspace instead of creating their own.",
+        default=None,
+    )
+
     ACCESS_TOKEN_EXPIRE_MINUTES: PositiveInt = Field(
         description="Expiration time for access tokens in minutes",
         default=60,
