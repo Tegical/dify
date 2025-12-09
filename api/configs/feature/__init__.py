@@ -790,6 +790,12 @@ class AuthConfig(BaseSettings):
         default=None,
     )
 
+    OAUTH_DEFAULT_WORKSPACE_ROLE: str = Field(
+        description="Default role for OAuth users joining the workspace. "
+        "Valid values: owner, admin, editor, normal, dataset_operator",
+        default="normal",
+    )
+
     ACCESS_TOKEN_EXPIRE_MINUTES: PositiveInt = Field(
         description="Expiration time for access tokens in minutes",
         default=60,

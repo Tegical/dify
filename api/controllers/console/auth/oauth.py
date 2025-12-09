@@ -202,7 +202,8 @@ def _generate_account(provider: str, user_info: OAuthUserInfo):
 
                 default_tenant = db.session.query(Tenant).filter_by(id=dify_config.OAUTH_DEFAULT_WORKSPACE_ID).first()
                 if default_tenant:
-                    TenantService.create_tenant_member(default_tenant, account, role="normal")
+                    role = dify_config.OAUTH_DEFAULT_WORKSPACE_ROLE or "normal"
+                    TenantService.create_tenant_member(default_tenant, account, role=role)
                     account.current_tenant = default_tenant
                 else:
                     raise WorkSpaceNotFoundError()
@@ -242,7 +243,8 @@ def _generate_account(provider: str, user_info: OAuthUserInfo):
 
             default_tenant = db.session.query(Tenant).filter_by(id=dify_config.OAUTH_DEFAULT_WORKSPACE_ID).first()
             if default_tenant:
-                TenantService.create_tenant_member(default_tenant, account, role="normal")
+                role = dify_config.OAUTH_DEFAULT_WORKSPACE_ROLE or "normal"
+                TenantService.create_tenant_member(default_tenant, account, role=role)
                 account.current_tenant = default_tenant
             else:
                 raise WorkSpaceNotFoundError()
