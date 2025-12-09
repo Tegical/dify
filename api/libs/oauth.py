@@ -318,9 +318,11 @@ class RuoyiOAuth(OAuth):
         redirect_uri: str,
         base_url: str,
         auth_url: str | None = None,
+        tenant_id: str | None = None,
     ):
         super().__init__(client_id, client_secret, redirect_uri)
         normalized_base_url = base_url.rstrip("/")
+        self._tenant_id = tenant_id
         self._auth_url = auth_url.rstrip("/") if auth_url else f"{normalized_base_url}/system/oauth2/authorize"
         self._token_url = f"{normalized_base_url}/system/oauth2/token"
         self._user_info_url = f"{normalized_base_url}/system/user/profile/get"
@@ -352,13 +354,16 @@ class RuoyiOAuth(OAuth):
     @override
     def get_access_token(self, code: str) -> str:
         credentials = f"{self.client_id}:{self.client_secret}".encode("utf-8")
+        headers = {
+            "Authorization": f"Basic {base64.b64encode(credentials).decode('ascii')}",
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
+        if self._tenant_id:
+            headers["tenant-id"] = self._tenant_id
         response = _http_client.post(
             self._token_url,
             data={"grant_type": "authorization_code", "code": code, "redirect_uri": self.redirect_uri},
-            headers={
-                "Authorization": f"Basic {base64.b64encode(credentials).decode('ascii')}",
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
+            headers=headers,
         )
         response.raise_for_status()
         payload = _json_object(response)
@@ -372,7 +377,10 @@ class RuoyiOAuth(OAuth):
 
     @override
     def get_raw_user_info(self, token: str) -> JsonObject:
-        response = _http_client.get(self._user_info_url, headers={"Authorization": f"Bearer {token}"})
+        headers = {"Authorization": f"Bearer {token}"}
+        if self._tenant_id:
+            headers["tenant-id"] = self._tenant_id
+        response = _http_client.get(self._user_info_url, headers=headers)
         response.raise_for_status()
         payload = _json_object(response)
         data = payload.get("data")
