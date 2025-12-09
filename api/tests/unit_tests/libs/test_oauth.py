@@ -29,3 +29,15 @@ def test_ruoyi_oauth_exchanges_code_and_normalizes_user_info(monkeypatch) -> Non
     assert user.email == "42@ruoyi.local"
     assert client.post.call_args.args[0] == "https://ruoyi.example.com/system/oauth2/token"
     assert client.get.call_args.args[0] == "https://ruoyi.example.com/system/user/profile/get"
+
+
+def test_ruoyi_oauth_uses_separate_authorization_url() -> None:
+    provider = oauth_module.RuoyiOAuth(
+        client_id="client-id",
+        client_secret="client-secret",
+        redirect_uri="https://console.example.com/callback",
+        base_url="https://api.ruoyi.example.com",
+        auth_url="https://sso.ruoyi.example.com/login/",
+    )
+
+    assert provider.get_authorization_url().startswith("https://sso.ruoyi.example.com/login?")

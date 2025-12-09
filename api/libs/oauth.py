@@ -311,10 +311,17 @@ class GoogleOAuth(OAuth):
 
 
 class RuoyiOAuth(OAuth):
-    def __init__(self, client_id: str, client_secret: str, redirect_uri: str, base_url: str):
+    def __init__(
+        self,
+        client_id: str,
+        client_secret: str,
+        redirect_uri: str,
+        base_url: str,
+        auth_url: str | None = None,
+    ):
         super().__init__(client_id, client_secret, redirect_uri)
         normalized_base_url = base_url.rstrip("/")
-        self._auth_url = f"{normalized_base_url}/system/oauth2/authorize"
+        self._auth_url = auth_url.rstrip("/") if auth_url else f"{normalized_base_url}/system/oauth2/authorize"
         self._token_url = f"{normalized_base_url}/system/oauth2/token"
         self._user_info_url = f"{normalized_base_url}/system/user/profile/get"
 
