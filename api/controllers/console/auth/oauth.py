@@ -58,6 +58,7 @@ def get_oauth_providers():
                 redirect_uri=dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/ruoyi",
                 base_url=dify_config.RUOYI_BASE_URL,
                 auth_url=dify_config.RUOYI_AUTH_URL,
+                tenant_id=dify_config.RUOYI_TENANT_ID,
             )
 
         OAUTH_PROVIDERS = {"github": github_oauth, "google": google_oauth, "ruoyi": ruoyi_oauth}

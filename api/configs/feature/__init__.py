@@ -779,6 +779,11 @@ class AuthConfig(BaseSettings):
         default=None,
     )
 
+    RUOYI_TENANT_ID: str | None = Field(
+        description="RuoyiVuePro tenant ID for multi-tenant environments",
+        default=None,
+    )
+
     ACCESS_TOKEN_EXPIRE_MINUTES: PositiveInt = Field(
         description="Expiration time for access tokens in minutes",
         default=60,

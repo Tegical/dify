@@ -77,7 +77,7 @@ class GitHubOAuth(OAuth):
 
         email_response = httpx.get(self._EMAIL_INFO_URL, headers=headers)
         email_info = email_response.json()
-        primary_email: dict = next((email for email in email_info if email["primary"] == True), {})
+        primary_email: dict = next((email for email in email_info if email["primary"]), {})
 
         return {**user_info, "email": primary_email.get("email", "")}
 
@@ -137,7 +137,13 @@ class RuoyiOAuth(OAuth):
     """RuoyiVuePro OAuth 集成实现"""
 
     def __init__(
-        self, client_id: str, client_secret: str, redirect_uri: str, base_url: str, auth_url: str | None = None
+        self,
+        client_id: str,
+        client_secret: str,
+        redirect_uri: str,
+        base_url: str,
+        auth_url: str | None = None,
+        tenant_id: str | None = None,
     ):
         """
         初始化 RuoyiVuePro OAuth 客户端
@@ -149,9 +155,11 @@ class RuoyiOAuth(OAuth):
             base_url: RuoyiVuePro 后端 API 基础 URL（例如：http://localhost:48080）
             auth_url: RuoyiVuePro 前端授权页面 URL（例如：http://localhost:80/sso）
                       如果不提供，则默认使用 {base_url}/system/oauth2/authorize
+            tenant_id: 租户标识（多租户环境下必须）
         """
         super().__init__(client_id, client_secret, redirect_uri)
         self.base_url = base_url.rstrip("/")  # 移除末尾的斜杠
+        self.tenant_id = tenant_id
         # 前端授权 URL 可单独配置，适配前后端分离架构
         self._AUTH_URL = auth_url.rstrip("/") if auth_url else f"{self.base_url}/system/oauth2/authorize"
         # 后端 API 接口
@@ -190,6 +198,10 @@ class RuoyiOAuth(OAuth):
             "Content-Type": "application/x-www-form-urlencoded",
         }
 
+        # 添加租户标识
+        if self.tenant_id:
+            headers["tenant-id"] = self.tenant_id
+
         response = httpx.post(self._TOKEN_URL, data=data, headers=headers, timeout=30.0)
 
         # 处理响应
@@ -215,6 +227,11 @@ class RuoyiOAuth(OAuth):
         headers = {
             "Authorization": f"Bearer {token}",
         }
+
+        # 添加租户标识
+        if self.tenant_id:
+            headers["tenant-id"] = self.tenant_id
+
         response = httpx.get(self._USER_INFO_URL, headers=headers, timeout=30.0)
 
         if response.status_code != 200:
