@@ -223,9 +223,16 @@ def _generate_account(provider: str, user_info: OAuthUserInfo):
 
         # For OAuth login, allow auto-registration regardless of ALLOW_REGISTER setting
         # This enables SSO integration while keeping manual registration disabled
+        # Use is_setup=True to bypass the ALLOW_REGISTER check in AccountService.create_account
         account_name = user_info.name or "Dify"
         account = RegisterService.register(
-            email=user_info.email, name=account_name, password=None, open_id=user_info.id, provider=provider
+            email=user_info.email,
+            name=account_name,
+            password=None,
+            open_id=user_info.id,
+            provider=provider,
+            is_setup=True,
+            create_workspace_required=False,
         )
 
         # Set interface language
