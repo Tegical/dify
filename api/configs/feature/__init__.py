@@ -769,7 +769,13 @@ class AuthConfig(BaseSettings):
     )
 
     RUOYI_BASE_URL: str | None = Field(
-        description="RuoyiVuePro system base URL (e.g., http://localhost:48080)",
+        description="RuoyiVuePro backend API base URL (e.g., http://localhost:48080)",
+        default=None,
+    )
+
+    RUOYI_AUTH_URL: str | None = Field(
+        description="RuoyiVuePro frontend authorization URL (e.g., http://localhost:80/sso). "
+        "If not set, defaults to {RUOYI_BASE_URL}/system/oauth2/authorize",
         default=None,
     )
 

@@ -136,7 +136,9 @@ class GoogleOAuth(OAuth):
 class RuoyiOAuth(OAuth):
     """RuoyiVuePro OAuth 集成实现"""
 
-    def __init__(self, client_id: str, client_secret: str, redirect_uri: str, base_url: str):
+    def __init__(
+        self, client_id: str, client_secret: str, redirect_uri: str, base_url: str, auth_url: str | None = None
+    ):
         """
         初始化 RuoyiVuePro OAuth 客户端
 
@@ -144,11 +146,15 @@ class RuoyiOAuth(OAuth):
             client_id: OAuth 客户端 ID
             client_secret: OAuth 客户端密钥
             redirect_uri: 回调地址
-            base_url: RuoyiVuePro 系统的基础 URL（例如：http://localhost:48080）
+            base_url: RuoyiVuePro 后端 API 基础 URL（例如：http://localhost:48080）
+            auth_url: RuoyiVuePro 前端授权页面 URL（例如：http://localhost:80/sso）
+                      如果不提供，则默认使用 {base_url}/system/oauth2/authorize
         """
         super().__init__(client_id, client_secret, redirect_uri)
         self.base_url = base_url.rstrip("/")  # 移除末尾的斜杠
-        self._AUTH_URL = f"{self.base_url}/system/oauth2/authorize"
+        # 前端授权 URL 可单独配置，适配前后端分离架构
+        self._AUTH_URL = auth_url.rstrip("/") if auth_url else f"{self.base_url}/system/oauth2/authorize"
+        # 后端 API 接口
         self._TOKEN_URL = f"{self.base_url}/system/oauth2/token"
         self._USER_INFO_URL = f"{self.base_url}/system/user/profile/get"
 
