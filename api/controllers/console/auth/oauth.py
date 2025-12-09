@@ -288,7 +288,8 @@ def _join_default_oauth_workspace(account: Account) -> bool:
         logger.warning("Configured OAuth default workspace %s does not exist", workspace_id)
         return False
 
-    TenantService.create_tenant_member(workspace, account, session, role="normal")
+    role = dify_config.OAUTH_DEFAULT_WORKSPACE_ROLE or "normal"
+    TenantService.create_tenant_member(workspace, account, session, role=role)
     account.current_tenant = workspace
     return True
 
