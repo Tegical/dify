@@ -21,7 +21,7 @@ from libs.token import (
     set_csrf_token_to_cookie,
     set_refresh_token_to_cookie,
 )
-from models import Account, AccountStatus
+from models import Account, AccountStatus, Tenant
 from services.account_service import AccountService, RegisterService, TenantService
 from services.billing_service import BillingService
 from services.errors.account import AccountNotFoundError, AccountRegisterError, SeatsLimitExceededError
@@ -277,6 +277,22 @@ def _get_account_by_openid_or_email(provider: str, user_info: OAuthUserInfo) -> 
     return account
 
 
+def _join_default_oauth_workspace(account: Account) -> bool:
+    workspace_id = dify_config.OAUTH_DEFAULT_WORKSPACE_ID
+    if not workspace_id:
+        return False
+
+    session = db.session()
+    workspace = session.get(Tenant, workspace_id)
+    if workspace is None:
+        logger.warning("Configured OAuth default workspace %s does not exist", workspace_id)
+        return False
+
+    TenantService.create_tenant_member(workspace, account, session, role="normal")
+    account.current_tenant = workspace
+    return True
+
+
 def _generate_account(
     provider: str,
     user_info: OAuthUserInfo,
@@ -289,11 +305,10 @@ def _generate_account(
 
     if account:
         tenants = TenantService.get_join_tenants(account, session=db.session())
-        if not tenants:
+        if not tenants and not _join_default_oauth_workspace(account):
             if not FeatureService.get_system_features().is_allow_create_workspace:
                 raise WorkSpaceNotAllowedCreateError()
-            else:
-                TenantService.create_owner_tenant(account, session=db.session())
+            TenantService.create_owner_tenant(account, session=db.session())
 
     if not account:
         normalized_email = user_info.email.lower()
@@ -319,6 +334,7 @@ def _generate_account(
             timezone=timezone,
             session=db.session(),
         )
+        _join_default_oauth_workspace(account)
 
     # Link account
     AccountService.link_account_integrate(provider, user_info.id, account, session=db.session())
