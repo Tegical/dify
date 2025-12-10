@@ -53,6 +53,11 @@ class SecurityConfig(BaseSettings):
         default=False,
     )
 
+    CSRF_CHECK_DISABLED: bool = Field(
+        description="Whether to disable CSRF token validation",
+        default=False,
+    )
+
     ADMIN_API_KEY_ENABLE: bool = Field(
         description="Whether to enable admin api key for authentication",
         default=False,

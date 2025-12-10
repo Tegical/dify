@@ -227,6 +227,10 @@ def build_force_logout_cookie_headers() -> list[str]:
 
 
 def check_csrf_token(request: Request, user_id: str):
+    # 如果 CSRF 校验被禁用，直接返回
+    if dify_config.CSRF_CHECK_DISABLED:
+        return
+
     # some apis are sent by beacon, so we need to bypass csrf token check
     # since these APIs are post, they are already protected by SameSite: Lax, so csrf is not required.
     def _unauthorized():
