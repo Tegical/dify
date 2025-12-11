@@ -140,56 +140,62 @@ const Apps = ({
   }
 
   return (
-    <div className={cn(
-      'flex h-full flex-col border-l-[0.5px] border-divider-regular',
-    )}>
+    <div className='mx-auto flex h-full w-full max-w-[1634px]'>
+      <div className='flex flex-1 flex-col rounded-[20px] bg-white'>
+        {/* 上部分: 标题描述和搜索 */}
+        <div className='flex h-[71px] shrink-0 items-center justify-between border-b border-divider-subtle px-5'>
+          <div>
+            <div className={`${s.textGradient} text-xl font-semibold`}>{t('explore.apps.title')}</div>
+            <div className='text-sm text-text-tertiary'>{t('explore.apps.description')}</div>
+          </div>
+          <Input
+            showLeftIcon
+            showClearIcon
+            wrapperClassName='w-[200px]'
+            value={keywords}
+            onChange={e => handleKeywordsChange(e.target.value)}
+            onClear={() => handleKeywordsChange('')}
+          />
+        </div>
 
-      <div className='shrink-0 px-12 pt-6'>
-        <div className={`mb-1 ${s.textGradient} text-xl font-semibold`}>{t('explore.apps.title')}</div>
-        <div className='text-sm text-text-tertiary'>{t('explore.apps.description')}</div>
+        {/* 下部分: 左侧Tab + 右侧应用区域 */}
+        <div className='flex flex-1 overflow-hidden'>
+          {/* 左侧Tab列表 */}
+          <div className={cn('w-[250px] shrink-0 overflow-y-auto border-r border-divider-subtle p-5', s.scrollContainer)}>
+            <div className='flex flex-col gap-2'>
+              <Category
+                className='flex-col items-start gap-2'
+                list={categories}
+                value={currCategory}
+                onChange={setCurrCategory}
+                allCategoriesEn={allCategoriesEn}
+                apps={allList}
+              />
+            </div>
+          </div>
+
+          {/* 右侧应用区域 */}
+          <div className='flex flex-1 justify-center'>
+            <div className={cn('h-full w-full max-w-[1354px] overflow-auto rounded-lg bg-[#F8F9FA] py-5', s.scrollContainer)}>
+              <nav className={cn(s.appList, 'grid shrink-0 content-start gap-4')}>
+                {searchFilteredList.map(app => (
+                  <AppCard
+                    key={app.app_id}
+                    isExplore
+                    app={app}
+                    canCreate={hasEditPermission}
+                    onCreate={() => {
+                      setCurrApp(app)
+                      setIsShowCreateModal(true)
+                    }}
+                  />
+                ))}
+              </nav>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className={cn(
-        'mt-6 flex items-center justify-between px-12',
-      )}>
-        <Category
-          list={categories}
-          value={currCategory}
-          onChange={setCurrCategory}
-          allCategoriesEn={allCategoriesEn}
-        />
-        <Input
-          showLeftIcon
-          showClearIcon
-          wrapperClassName='w-[200px] self-start'
-          value={keywords}
-          onChange={e => handleKeywordsChange(e.target.value)}
-          onClear={() => handleKeywordsChange('')}
-        />
-      </div>
-
-      <div className={cn(
-        'relative mt-4 flex flex-1 shrink-0 grow flex-col overflow-auto pb-6',
-      )}>
-        <nav
-          className={cn(
-            s.appList,
-            'grid shrink-0 content-start gap-4 px-6 sm:px-12',
-          )}>
-          {searchFilteredList.map(app => (
-            <AppCard
-              key={app.app_id}
-              isExplore
-              app={app}
-              canCreate={hasEditPermission}
-              onCreate={() => {
-                setCurrApp(app)
-                setIsShowCreateModal(true)
-              }}
-            />
-          ))}
-        </nav>
-      </div>
       {isShowCreateModal && (
         <CreateAppModal
           appIconType={currApp?.app.icon_type || 'emoji'}

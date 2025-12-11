@@ -31,11 +31,12 @@ const PluginsNav = ({
     )}>
       <div
         className={classNames(
-          'system-sm-medium relative flex h-8 flex-row items-center justify-center gap-0.5 rounded-xl border border-transparent p-1.5',
-          activated && 'border-components-main-nav-nav-button-border bg-components-main-nav-nav-button-bg-active text-components-main-nav-nav-button-text shadow-md',
-          !activated && 'text-text-tertiary hover:bg-state-base-hover hover:text-text-secondary',
+          'relative flex h-[43px] w-[194px] items-center justify-start gap-2 rounded-[10px] border border-transparent px-4 text-lg font-medium transition-all',
+          activated && 'border-components-main-nav-nav-button-border text-components-main-nav-nav-button-text shadow-md',
+          !activated && 'text-text-tertiary hover:text-text-secondary',
           (isInstallingWithError || isFailed) && !activated && 'border-components-panel-border-subtle',
         )}
+        style={activated ? { backgroundColor: '#D7E6FF' } : undefined}
       >
         {
           (isFailed || isInstallingWithError) && !activated && (
@@ -45,7 +46,7 @@ const PluginsNav = ({
             />
           )
         }
-        <div className='mr-0.5 flex h-5 w-5 items-center justify-center'>
+        <div className='flex h-4 w-4 items-center justify-center'>
           {
             (!(isInstalling || isInstallingWithError) || activated) && (
               <Group className='h-4 w-4' />
@@ -57,7 +58,7 @@ const PluginsNav = ({
             )
           }
         </div>
-        <span className='px-0.5'>{t('common.menus.plugins')}</span>
+        <span>{t('common.menus.plugins')}</span>
       </div>
     </Link>
   )

@@ -21,11 +21,13 @@ const ToolsNav = ({
 
   return (
     <Link href="/tools" className={classNames(
-      'group text-sm font-medium',
-      activated && 'hover:bg-components-main-nav-nav-button-bg-active-hover bg-components-main-nav-nav-button-bg-active font-semibold shadow-md',
-      activated ? 'text-components-main-nav-nav-button-text-active' : 'text-components-main-nav-nav-button-text hover:bg-components-main-nav-nav-button-bg-hover',
+      'group text-lg font-medium',
+      activated && 'font-semibold shadow-md',
+      activated ? 'text-components-main-nav-nav-button-text-active' : 'text-components-main-nav-nav-button-text',
       className,
-    )}>
+    )}
+    style={activated ? { backgroundColor: '#D7E6FF' } : undefined}
+    >
       {
         activated
           ? <RiHammerFill className='h-4 w-4' />

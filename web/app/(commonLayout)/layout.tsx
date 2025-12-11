@@ -3,8 +3,7 @@ import type { ReactNode } from 'react'
 import SwrInitializer from '@/app/components/swr-initializer'
 import { AppContextProvider } from '@/context/app-context'
 import GA, { GaType } from '@/app/components/base/ga'
-import HeaderWrapper from '@/app/components/header/header-wrapper'
-import Header from '@/app/components/header'
+import GlobalSidebar from '@/app/components/global-sidebar'
 import { EventEmitterContextProvider } from '@/context/event-emitter'
 import { ProviderContextProvider } from '@/context/provider-context'
 import { ModalContextProvider } from '@/context/modal-context'
@@ -22,10 +21,20 @@ const Layout = ({ children }: { children: ReactNode }) => {
           <EventEmitterContextProvider>
             <ProviderContextProvider>
               <ModalContextProvider>
-                <HeaderWrapper>
-                  <Header />
-                </HeaderWrapper>
-                {children}
+                <div
+                  className="flex h-screen overflow-hidden"
+                  style={{
+                    backgroundImage: 'url(/background/bg.png)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                  }}
+                >
+                  <GlobalSidebar />
+                  <main className="flex flex-1 flex-col overflow-hidden">
+                    {children}
+                  </main>
+                </div>
                 <ReadmePanel />
                 <GotoAnything />
                 <Splash />

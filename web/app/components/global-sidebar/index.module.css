@@ -1,0 +1,25 @@
+/* 全局侧边栏样式 */
+
+/* 导航项选中状态背景色 */
+.navItemActive {
+  background-color: #D7E6FF !important;
+}
+
+/* 为不同的导航组件应用选中样式 */
+:global(.nav-item-active) {
+  background-color: #D7E6FF !important;
+  border-radius: 10px;
+}
+
+/* ExploreNav, ToolsNav, PluginsNav 选中状态 */
+:global(.explore-nav-active),
+:global(.tools-nav-active),
+:global(.plugins-nav-active) {
+  background-color: #D7E6FF !important;
+}
+
+/* AppNav 和 DatasetNav 的选中状态 */
+:global(.app-nav-active),
+:global(.dataset-nav-active) {
+  background-color: #D7E6FF !important;
+}
