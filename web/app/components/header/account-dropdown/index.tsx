@@ -85,8 +85,8 @@ export default function AppSelector() {
               >
                 <MenuItems
                   className="
-                    absolute right-0 mt-1.5 w-60 max-w-80
-                    origin-top-right divide-y divide-divider-subtle rounded-xl bg-components-panel-bg-blur shadow-lg
+                    absolute bottom-full left-0 mb-1.5 w-60 max-w-80
+                    origin-bottom-left divide-y divide-divider-subtle rounded-xl bg-components-panel-bg-blur shadow-lg
                     backdrop-blur-sm focus:outline-none
                   "
                 >

@@ -22,9 +22,11 @@ const ExploreNav = ({
   return (
     <Link href="/explore/apps" className={classNames(
       className, 'group',
-      activated && 'bg-components-main-nav-nav-button-bg-active shadow-md',
-      activated ? 'text-components-main-nav-nav-button-text-active' : 'text-components-main-nav-nav-button-text hover:bg-components-main-nav-nav-button-bg-hover',
-    )}>
+      activated && 'shadow-md',
+      activated ? 'text-components-main-nav-nav-button-text-active' : 'text-components-main-nav-nav-button-text',
+    )}
+    style={activated ? { backgroundColor: '#D7E6FF' } : undefined}
+    >
       {
         activated
           ? <RiPlanetFill className='h-4 w-4' />

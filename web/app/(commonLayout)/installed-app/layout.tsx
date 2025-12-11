@@ -1,23 +1,14 @@
 'use client'
-import type { FC } from 'react'
+import type { FC, PropsWithChildren } from 'react'
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import ExploreContext from '@/context/explore-context'
-import Workspace from '@/app/components/explore/workspace'
 import { useAppContext } from '@/context/app-context'
 import { fetchMembers } from '@/service/common'
 import type { InstalledApp } from '@/models/explore'
-import { useTranslation } from 'react-i18next'
-import useDocumentTitle from '@/hooks/use-document-title'
 import { useGetInstalledApps } from '@/service/use-explore'
 
-export type IExploreProps = {
-  children: React.ReactNode
-}
-
-const Explore: FC<IExploreProps> = ({
-  children,
-}) => {
+const InstalledAppLayout: FC<PropsWithChildren> = ({ children }) => {
   const router = useRouter()
   const [controlUpdateInstalledApps, setControlUpdateInstalledApps] = useState(0)
   const { userProfile, isCurrentWorkspaceDatasetOperator } = useAppContext()
@@ -25,9 +16,6 @@ const Explore: FC<IExploreProps> = ({
   const [installedApps, setInstalledApps] = useState<InstalledApp[]>([])
   const [isFetchingInstalledApps, setIsFetchingInstalledApps] = useState(false)
   const { isFetching: isFetchingInstalledAppsData, data: ret, refetch: fetchInstalledAppList } = useGetInstalledApps()
-  const { t } = useTranslation()
-
-  useDocumentTitle(t('common.menus.explore'))
 
   useEffect(() => {
     (async () => {
@@ -61,30 +49,22 @@ const Explore: FC<IExploreProps> = ({
   }, [controlUpdateInstalledApps, fetchInstalledAppList])
 
   return (
-    <div className='flex h-full flex-col overflow-hidden'>
-      <ExploreContext.Provider
-        value={
-          {
-            controlUpdateInstalledApps,
-            setControlUpdateInstalledApps,
-            hasEditPermission,
-            installedApps,
-            setInstalledApps,
-            isFetchingInstalledApps,
-            setIsFetchingInstalledApps,
-          }
+    <ExploreContext.Provider
+      value={
+        {
+          controlUpdateInstalledApps,
+          setControlUpdateInstalledApps,
+          hasEditPermission,
+          installedApps,
+          setInstalledApps,
+          isFetchingInstalledApps,
+          setIsFetchingInstalledApps,
         }
-      >
-        <div className='flex h-full flex-col px-6 py-6'>
-          <div className='flex h-full flex-col gap-[29px]'>
-            <Workspace controlUpdateInstalledApps={controlUpdateInstalledApps} />
-            <div className='flex-1 overflow-hidden'>
-              {children}
-            </div>
-          </div>
-        </div>
-      </ExploreContext.Provider>
-    </div>
+      }
+    >
+      {children}
+    </ExploreContext.Provider>
   )
 }
-export default React.memo(Explore)
+
+export default React.memo(InstalledAppLayout)

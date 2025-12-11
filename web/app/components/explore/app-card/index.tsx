@@ -23,7 +23,16 @@ const AppCard = ({
   const { t } = useTranslation()
   const { app: appBasicInfo } = app
   return (
-    <div className={cn('group relative col-span-1 flex cursor-pointer flex-col overflow-hidden rounded-lg border-[0.5px] border-components-panel-border bg-components-panel-on-panel-item-bg pb-2 shadow-sm transition-all duration-200 ease-in-out hover:shadow-lg')}>
+    <div
+      className={cn('group relative col-span-1 flex cursor-pointer flex-col overflow-hidden rounded-lg border-[0.5px] border-components-panel-border pb-2 shadow-sm transition-all duration-200 ease-in-out hover:shadow-lg')}
+      style={{
+        width: '420px',
+        height: '210px',
+        backgroundImage: 'url(/background/card.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
       <div className='flex h-[66px] shrink-0 grow-0 items-center gap-3 px-[14px] pb-3 pt-[14px]'>
         <div className='relative shrink-0'>
           <AppIcon
