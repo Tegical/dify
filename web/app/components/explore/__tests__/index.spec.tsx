@@ -48,13 +48,14 @@ describe('Explore', () => {
 
   describe('Rendering', () => {
     it('should render children', () => {
-      render(
+      const { container } = render(
         <Explore>
           <div>child</div>
         </Explore>,
       )
 
       expect(screen.getByText('child')).toBeInTheDocument()
+      expect(container.firstElementChild).toHaveClass('bg-transparent')
     })
 
     it('should not render the legacy explore sidebar on desktop', () => {

@@ -109,6 +109,14 @@ describe('AppCard', () => {
       expect(descWrapper).toHaveClass('line-clamp-2')
     })
 
+    it('uses the customized background while preserving the responsive card layout', () => {
+      const { container } = renderComponent()
+
+      const card = container.firstElementChild
+      expect(card).toHaveClass('h-52.5', 'bg-cover', 'bg-center')
+      expect(card).toHaveStyle({ backgroundImage: 'url(/background/card.png)' })
+    })
+
     it('should not render category badges', () => {
       renderComponent({ app: createApp({ categories: ['Search', 'Productivity'] }) })
 

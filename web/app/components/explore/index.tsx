@@ -8,7 +8,7 @@ const Explore = ({ children }: { children: React.ReactNode }) => {
   const isMobile = media === MediaType.mobile
 
   return (
-    <div className="flex h-full overflow-hidden border-t border-divider-regular bg-background-body">
+    <div className="flex h-full overflow-hidden border-t border-divider-regular bg-transparent">
       {isMobile && <Sidebar />}
       <div className="h-full min-h-0 w-0 grow">{children}</div>
     </div>

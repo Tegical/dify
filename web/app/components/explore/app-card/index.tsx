@@ -47,9 +47,10 @@ const AppCard = ({ app, canCreate, onCreate, onTry, isExplore = true }: AppCardP
   return (
     <div
       className={cn(
-        'group relative col-span-1 flex h-35.5 flex-col overflow-hidden rounded-xl border-[0.5px] border-components-panel-border bg-components-panel-on-panel-item-bg pb-3 text-left shadow-xs shadow-shadow-shadow-3',
+        'group relative col-span-1 flex h-52.5 flex-col overflow-hidden rounded-xl border-[0.5px] border-components-panel-border bg-components-panel-on-panel-item-bg bg-cover bg-center bg-no-repeat pb-3 text-left shadow-xs shadow-shadow-shadow-3 transition-shadow hover:shadow-lg motion-reduce:transition-none',
         isClickable && 'cursor-pointer',
       )}
+      style={{ backgroundImage: 'url(/background/card.png)' }}
     >
       {isClickable && (
         <button

@@ -269,12 +269,8 @@ const Apps = ({ onSuccess }: { onSuccess?: () => void }) => {
   if (homeQueries.isAppListError) return null
 
   return (
-    <div
-      className={cn(
-        'flex h-full min-h-0 flex-col overflow-hidden border-l-[0.5px] border-divider-regular',
-      )}
-    >
-      <div className="flex flex-1 flex-col overflow-y-auto">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden px-3 py-3 sm:px-6 sm:py-6">
+      <div className="flex flex-1 flex-col overflow-y-auto rounded-[20px] border border-white/50 bg-background-body/90 shadow-lg backdrop-blur-sm">
         {homeQueries.isPending ? (
           <ExploreHomeSkeleton showBanner={systemFeatures.enable_explore_banner} />
         ) : (
@@ -297,7 +293,12 @@ const Apps = ({ onSuccess }: { onSuccess?: () => void }) => {
             />
 
             <div className={cn('relative flex flex-1 shrink-0 grow flex-col pb-6')}>
-              <nav className={cn(s.appList, 'grid shrink-0 content-start gap-3 px-8')}>
+              <nav
+                className={cn(
+                  s.appList,
+                  'grid shrink-0 content-start gap-4 px-5 pb-6 sm:px-8',
+                )}
+              >
                 {searchFilteredList.map((app) => (
                   <AppCard
                     key={app.app_id}

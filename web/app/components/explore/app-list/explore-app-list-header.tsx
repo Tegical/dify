@@ -22,7 +22,7 @@ export function ExploreAppListHeader({
   const { t } = useTranslation()
 
   return (
-    <div className="sticky top-0 z-10 bg-background-body">
+    <div className="sticky top-0 z-10 border-b border-divider-subtle bg-background-body/90 backdrop-blur-sm">
       <div className="flex items-center gap-2 px-8 pt-6">
         <div className="min-w-0 flex-1 truncate system-xl-medium text-text-primary">
           {t(($) => $['apps.title'], { ns: 'explore' })}

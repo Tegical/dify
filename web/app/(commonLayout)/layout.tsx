@@ -17,7 +17,10 @@ export default async function Layout({
     <React.Fragment>
       <ConsoleRuntimeProviders>
         <NextRouteStateBridge>
-          <div className="flex h-full flex-col overflow-hidden">
+          <div
+            className="flex h-full flex-col overflow-hidden bg-background-body bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: 'url(/background/bg.png)' }}
+          >
             <MaintenanceNotice />
             <ConsoleContextProviders>
               <MainNavLayout detailSidebar={detailSidebar}>{children}</MainNavLayout>
