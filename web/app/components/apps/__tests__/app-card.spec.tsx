@@ -556,6 +556,13 @@ describe('AppCard', () => {
       expect(screen.getByRole('link', { name: 'Test App' })).toBeInTheDocument()
     })
 
+    it('should retain the legacy card background treatment', () => {
+      render(<AppCard app={mockApp} />)
+
+      const card = screen.getByRole('link', { name: 'Test App' })
+      expect(card.parentElement).toHaveStyle({ backgroundImage: 'url(/background/card.png)' })
+    })
+
     it('should render preview-only app card as a dimmed information-only card', () => {
       const previewOnlyApp = createMockApp({
         name: 'Preview Only App',

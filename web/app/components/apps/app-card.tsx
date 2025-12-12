@@ -1111,7 +1111,7 @@ export function AppCard({
   const appDescriptionId = useId()
   const appHref = getRedirectionPath(app, maintainerPermissionOptions)
   const appCardClassName = cn(
-    'inline-flex h-full w-full touch-manipulation flex-col overflow-hidden rounded-xl border-[0.5px] border-solid border-components-card-border bg-components-card-bg shadow-xs outline-hidden transition-shadow duration-200 ease-in-out',
+    'inline-flex h-full w-full touch-manipulation flex-col overflow-hidden rounded-xl border-[0.5px] border-solid border-components-card-border bg-components-card-bg bg-cover bg-center bg-no-repeat shadow-xs outline-hidden transition-shadow duration-200 ease-in-out',
     isPreviewOnly
       ? 'cursor-not-allowed opacity-60 focus-visible:ring-2 focus-visible:ring-state-accent-solid'
       : 'cursor-pointer hover:shadow-lg focus-visible:ring-2 focus-visible:ring-state-accent-solid',
@@ -1196,7 +1196,10 @@ export function AppCard({
 
   return (
     <>
-      <div className="group relative col-span-1 h-41.5">
+      <div
+        className="group relative col-span-1 h-41.5"
+        style={{ backgroundImage: 'url(/background/card.png)' }}
+      >
         {isPreviewOnly ? (
           <article
             role="button"
