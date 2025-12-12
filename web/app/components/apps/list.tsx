@@ -189,7 +189,7 @@ const List = () => {
 
   // 计算当前 tab 筛选后的应用列表
   const filteredApps = data?.flatMap(({ data: apps }) => apps) || []
-  const hasApps = filteredApps.length > 0
+  const hasApps = filteredApps.length > 0 || isLoading
 
   return (
     <>
@@ -242,7 +242,7 @@ const List = () => {
                 className={cn('h-full w-full max-w-[1354px] overflow-auto rounded-lg bg-[#F8F9FA] py-5', s.scrollContainer)}
               >
                 {/* 顶部过滤器 */}
-                <div className='mb-4 flex items-center justify-end gap-2'>
+                <div className='mb-4 flex items-center justify-end gap-2 pr-5'>
                   <CheckboxWithLabel
                     className='mr-2'
                     label={t('app.showMyCreatedAppsOnly')}
@@ -264,15 +264,12 @@ const List = () => {
                     </div>
                   )
                   : (
-                    <div className='flex min-h-[400px] items-center justify-center'>
+                    <div className='px-5'>
                       {isCurrentWorkspaceEditor && (
-                        <div className='absolute left-1/2 top-10 -translate-x-1/2'>
+                        <div className='w-[420px]'>
                           <NewAppCard ref={newAppCardRef} onSuccess={mutate} selectedAppType={activeTab} />
                         </div>
                       )}
-                      <span className='system-md-medium text-text-tertiary'>
-                        {t('app.newApp.noAppsFound')}
-                      </span>
                     </div>
                   )}
               </div>
