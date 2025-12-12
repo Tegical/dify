@@ -11,10 +11,12 @@ import Indicator from '@/app/components/header/indicator'
 
 type PluginsNavProps = {
   className?: string
+  iconOnly?: boolean
 }
 
 const PluginsNav = ({
   className,
+  iconOnly = false,
 }: PluginsNavProps) => {
   const { t } = useTranslation()
   const selectedSegment = useSelectedLayoutSegment()
@@ -31,7 +33,8 @@ const PluginsNav = ({
     )}>
       <div
         className={classNames(
-          'relative flex h-[43px] w-[194px] items-center justify-start gap-2 rounded-[10px] border border-transparent px-4 text-lg font-medium transition-all',
+          'relative flex items-center gap-2 rounded-[10px] border border-transparent text-lg font-medium transition-all',
+          iconOnly ? 'h-[40px] w-[40px] justify-center' : 'h-[43px] w-[194px] justify-start px-4',
           activated && 'border-components-main-nav-nav-button-border text-components-main-nav-nav-button-text shadow-md',
           !activated && 'text-text-tertiary hover:text-text-secondary',
           (isInstallingWithError || isFailed) && !activated && 'border-components-panel-border-subtle',
@@ -46,7 +49,7 @@ const PluginsNav = ({
             />
           )
         }
-        <div className='flex h-4 w-4 items-center justify-center'>
+        <div className='flex h-4 w-4 shrink-0 items-center justify-center'>
           {
             (!(isInstalling || isInstallingWithError) || activated) && (
               <Group className='h-4 w-4' />
@@ -58,7 +61,7 @@ const PluginsNav = ({
             )
           }
         </div>
-        <span>{t('common.menus.plugins')}</span>
+        {!iconOnly && <span className='whitespace-nowrap'>{t('common.menus.plugins')}</span>}
       </div>
     </Link>
   )

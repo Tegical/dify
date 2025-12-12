@@ -14,7 +14,11 @@ import { basePath } from '@/utils/var'
 import { useDatasetDetail, useDatasetList } from '@/service/knowledge/use-dataset'
 import type { DataSet } from '@/models/datasets'
 
-const DatasetNav = () => {
+type DatasetNavProps = {
+  iconOnly?: boolean
+}
+
+const DatasetNav = ({ iconOnly = false }: DatasetNavProps = {}) => {
   const { t } = useTranslation()
   const router = useRouter()
   const { datasetId } = useParams()
@@ -92,6 +96,7 @@ const DatasetNav = () => {
       createText={t('common.menus.newDataset')}
       onCreate={() => router.push(createRoute)}
       onLoadMore={handleLoadMore}
+      iconOnly={iconOnly}
     />
   )
 }

@@ -3,8 +3,6 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useSearchParams, useSelectedLayoutSegment } from 'next/navigation'
-import type { INavSelectorProps } from './nav-selector'
-import NavSelector from './nav-selector'
 import classNames from '@/utils/classnames'
 import { ArrowNarrowLeft } from '@/app/components/base/icons/src/vender/line/arrows'
 import { useStore as useAppStore } from '@/app/components/app/store'
@@ -15,8 +13,14 @@ type INavProps = {
   text: string
   activeSegment: string | string[]
   link: string
-  isApp: boolean
-} & INavSelectorProps
+  isApp?: boolean
+  iconOnly?: boolean
+  curNav?: any
+  navigationItems?: any[]
+  createText?: string
+  onCreate?: (state: string) => void
+  onLoadMore?: () => void
+}
 
 const Nav = ({
   icon,
@@ -25,11 +29,7 @@ const Nav = ({
   activeSegment,
   link,
   curNav,
-  navigationItems,
-  createText,
-  onCreate,
-  onLoadMore,
-  isApp,
+  iconOnly = false,
 }: INavProps) => {
   const setAppDetail = useAppStore(state => state.setAppDetail)
   const [hovered, setHovered] = useState(false)
@@ -50,7 +50,8 @@ const Nav = ({
         <div
           onClick={() => setAppDetail()}
           className={classNames(
-            'flex h-[43px] w-[194px] cursor-pointer items-center rounded-[10px] px-4 text-lg font-medium transition-all',
+            'flex cursor-pointer items-center rounded-[10px] text-lg font-medium transition-all',
+            iconOnly ? 'h-[40px] w-[40px] justify-center' : 'h-[43px] w-[194px] px-4',
             isActivated && 'font-semibold shadow-md',
             isActivated ? 'text-components-main-nav-nav-button-text-active' : 'text-components-main-nav-nav-button-text',
           )}
@@ -58,31 +59,18 @@ const Nav = ({
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
         >
-          <div>
-            {(hovered && curNav) && <ArrowNarrowLeft className='h-4 w-4' />}
-            {!(hovered && curNav) && isActivated && activeIcon}
-            {!(hovered && curNav) && !isActivated && icon}
+          <div className='shrink-0'>
+            {(hovered && curNav && !iconOnly) && <ArrowNarrowLeft className='h-4 w-4' />}
+            {!(hovered && curNav && !iconOnly) && isActivated && activeIcon}
+            {!(hovered && curNav && !iconOnly) && !isActivated && icon}
           </div>
-          <div className='ml-2'>
-            {text}
-          </div>
+          {!iconOnly && (
+            <div className='ml-2 whitespace-nowrap'>
+              {text}
+            </div>
+          )}
         </div>
       </Link>
-      {
-        curNav && isActivated && (
-          <>
-            <div className='font-light text-divider-deep'>/</div>
-            <NavSelector
-              isApp={isApp}
-              curNav={curNav}
-              navigationItems={navigationItems}
-              createText={createText}
-              onCreate={onCreate}
-              onLoadMore={onLoadMore}
-            />
-          </>
-        )
-      }
     </div>
   )
 }

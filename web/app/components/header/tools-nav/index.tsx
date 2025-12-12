@@ -10,10 +10,12 @@ import {
 import classNames from '@/utils/classnames'
 type ToolsNavProps = {
   className?: string
+  iconOnly?: boolean
 }
 
 const ToolsNav = ({
   className,
+  iconOnly = false,
 }: ToolsNavProps) => {
   const { t } = useTranslation()
   const selectedSegment = useSelectedLayoutSegment()
@@ -30,12 +32,14 @@ const ToolsNav = ({
     >
       {
         activated
-          ? <RiHammerFill className='h-4 w-4' />
-          : <RiHammerLine className='h-4 w-4' />
+          ? <RiHammerFill className='h-4 w-4 shrink-0' />
+          : <RiHammerLine className='h-4 w-4 shrink-0' />
       }
-      <div className='ml-2 max-[1024px]:hidden'>
-        {t('common.menus.tools')}
-      </div>
+      {!iconOnly && (
+        <div className='ml-2 whitespace-nowrap max-[1024px]:hidden'>
+          {t('common.menus.tools')}
+        </div>
+      )}
     </Link>
   )
 }

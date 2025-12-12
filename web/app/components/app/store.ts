@@ -5,6 +5,7 @@ import type { IChatItem } from '@/app/components/base/chat/chat/type'
 type State = {
   appDetail?: App & Partial<AppSSO>
   appSidebarExpand: string
+  globalSidebarExpand: 'expand' | 'collapse'
   currentLogItem?: IChatItem
   currentLogModalActiveTab: string
   showPromptLogModal: boolean
@@ -16,6 +17,7 @@ type State = {
 type Action = {
   setAppDetail: (appDetail?: App & Partial<AppSSO>) => void
   setAppSidebarExpand: (state: string) => void
+  setGlobalSidebarExpand: (state: 'expand' | 'collapse') => void
   setCurrentLogItem: (item?: IChatItem) => void
   setCurrentLogModalActiveTab: (tab: string) => void
   setShowPromptLogModal: (showPromptLogModal: boolean) => void
@@ -29,6 +31,8 @@ export const useStore = create<State & Action>(set => ({
   setAppDetail: appDetail => set(() => ({ appDetail })),
   appSidebarExpand: '',
   setAppSidebarExpand: appSidebarExpand => set(() => ({ appSidebarExpand })),
+  globalSidebarExpand: 'expand',
+  setGlobalSidebarExpand: globalSidebarExpand => set(() => ({ globalSidebarExpand })),
   currentLogItem: undefined,
   currentLogModalActiveTab: 'DETAIL',
   setCurrentLogItem: currentLogItem => set(() => ({ currentLogItem })),

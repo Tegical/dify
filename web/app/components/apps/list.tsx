@@ -29,7 +29,6 @@ import Input from '@/app/components/base/input'
 import cn from '@/utils/classnames'
 import { useStore as useTagStore } from '@/app/components/base/tag-management/store'
 import TagFilter from '@/app/components/base/tag-management/filter'
-import CheckboxWithLabel from '@/app/components/datasets/create/website/base/checkbox-with-label'
 import dynamic from 'next/dynamic'
 import { AppModeEnum } from '@/types/app'
 
@@ -44,12 +43,11 @@ const getKey = (
   pageIndex: number,
   previousPageData: AppListResponse,
   activeTab: string,
-  isCreatedByMe: boolean,
   tags: string[],
   keywords: string,
 ) => {
   if (!pageIndex || previousPageData.has_more) {
-    const params: any = { url: 'apps', params: { page: pageIndex + 1, limit: 30, name: keywords, is_created_by_me: isCreatedByMe } }
+    const params: any = { url: 'apps', params: { page: pageIndex + 1, limit: 30, name: keywords } }
 
     if (activeTab !== 'all')
       params.params.mode = activeTab
@@ -72,8 +70,7 @@ const List = () => {
   const [activeTab, setActiveTab] = useTabSearchParams({
     defaultTab: 'all',
   })
-  const { query: { tagIDs = [], keywords = '', isCreatedByMe: queryIsCreatedByMe = false }, setQuery } = useAppsQueryState()
-  const [isCreatedByMe, setIsCreatedByMe] = useState(queryIsCreatedByMe)
+  const { query: { tagIDs = [], keywords = '' }, setQuery } = useAppsQueryState()
   const [tagFilterValue, setTagFilterValue] = useState<string[]>(tagIDs)
   const [searchKeywords, setSearchKeywords] = useState(keywords)
   const newAppCardRef = useRef<HTMLDivElement>(null)
@@ -99,7 +96,7 @@ const List = () => {
   })
 
   const { data, isLoading, error, setSize, mutate } = useSWRInfinite(
-    (pageIndex: number, previousPageData: AppListResponse) => getKey(pageIndex, previousPageData, activeTab, isCreatedByMe, tagIDs, searchKeywords),
+    (pageIndex: number, previousPageData: AppListResponse) => getKey(pageIndex, previousPageData, activeTab, tagIDs, searchKeywords),
     fetchAppList,
     {
       revalidateFirstPage: true,
@@ -175,12 +172,6 @@ const List = () => {
     handleTagsUpdate()
   }
 
-  const handleCreatedByMeChange = useCallback(() => {
-    const newValue = !isCreatedByMe
-    setIsCreatedByMe(newValue)
-    setQuery(prev => ({ ...prev, isCreatedByMe: newValue }))
-  }, [isCreatedByMe, setQuery])
-
   // 左侧Tab项的样式
   const itemClassName = (isSelected: boolean) => cn(
     'flex h-[32px] w-full cursor-pointer items-center gap-2 rounded-lg border-[0.5px] border-transparent px-3 py-[7px] text-[13px] font-medium leading-[18px] text-text-tertiary hover:bg-components-main-nav-nav-button-bg-active',
@@ -243,12 +234,6 @@ const List = () => {
               >
                 {/* 顶部过滤器 */}
                 <div className='mb-4 flex items-center justify-end gap-2 pr-5'>
-                  <CheckboxWithLabel
-                    className='mr-2'
-                    label={t('app.showMyCreatedAppsOnly')}
-                    isChecked={isCreatedByMe}
-                    onChange={handleCreatedByMeChange}
-                  />
                   <TagFilter type='app' value={tagFilterValue} onChange={handleTagsChange} />
                 </div>
 

@@ -40,7 +40,11 @@ const getKey = (
   return null
 }
 
-const AppNav = () => {
+type AppNavProps = {
+  iconOnly?: boolean
+}
+
+const AppNav = ({ iconOnly = false }: AppNavProps = {}) => {
   const { t } = useTranslation()
   const { appId } = useParams()
   const { isCurrentWorkspaceEditor } = useAppContext()
@@ -128,6 +132,7 @@ const AppNav = () => {
         createText={t('common.menus.newApp')}
         onCreate={openModal}
         onLoadMore={handleLoadMore}
+        iconOnly={iconOnly}
       />
       <CreateAppModal
         show={showNewAppDialog}

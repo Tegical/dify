@@ -10,10 +10,12 @@ import {
 import classNames from '@/utils/classnames'
 type ExploreNavProps = {
   className?: string
+  iconOnly?: boolean
 }
 
 const ExploreNav = ({
   className,
+  iconOnly = false,
 }: ExploreNavProps) => {
   const { t } = useTranslation()
   const selectedSegment = useSelectedLayoutSegment()
@@ -29,12 +31,14 @@ const ExploreNav = ({
     >
       {
         activated
-          ? <RiPlanetFill className='h-4 w-4' />
-          : <RiPlanetLine className='h-4 w-4' />
+          ? <RiPlanetFill className='h-4 w-4 shrink-0' />
+          : <RiPlanetLine className='h-4 w-4 shrink-0' />
       }
-      <div className='ml-2 max-[1024px]:hidden'>
-        {t('common.menus.explore')}
-      </div>
+      {!iconOnly && (
+        <div className='ml-2 whitespace-nowrap max-[1024px]:hidden'>
+          {t('common.menus.explore')}
+        </div>
+      )}
     </Link>
   )
 }
