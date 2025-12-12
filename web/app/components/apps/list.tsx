@@ -26,6 +26,7 @@ import { AppCardSkeleton } from './app-card-skeleton'
 import { AppListCreationModals } from './app-list-creation-modals'
 import { AppListHeaderFilters } from './app-list-header-filters'
 import { AppListTagManagementModal } from './app-list-tag-management-modal'
+import type { AppListCategory } from './app-type-filter-shared'
 import { APP_LIST_GRID_CLASS_NAME, APP_LIST_SEARCH_DEBOUNCE_MS } from './constants'
 import Empty from './empty'
 import FirstEmptyState from './first-empty-state'
@@ -43,6 +44,12 @@ type AppListSortBy = NonNullable<AppListQuery['sort_by']>
 type Props = Readonly<{
   controlRefreshList?: number
 }>
+
+type AppTypeOption = {
+  value: AppListCategory
+  label: string
+  iconClassName: string
+}
 
 function List({ controlRefreshList = 0 }: Props) {
   const { t } = useTranslation()
@@ -229,103 +236,162 @@ function List({ controlRefreshList = 0 }: Props) {
   const openCreateFromDSLModal = useCallback(() => {
     if (canCreateApp) setShowCreateFromDSLModal(true)
   }, [canCreateApp])
+  const appTypeOptions = useMemo<AppTypeOption[]>(
+    () => [
+      {
+        value: 'all',
+        label: t(($) => $['types.all'], { ns: 'app' }),
+        iconClassName: 'i-ri-apps-2-line',
+      },
+      {
+        value: AppModeEnum.WORKFLOW,
+        label: t(($) => $['types.workflow'], { ns: 'app' }),
+        iconClassName: 'i-ri-exchange-2-line',
+      },
+      {
+        value: AppModeEnum.ADVANCED_CHAT,
+        label: t(($) => $['types.advanced'], { ns: 'app' }),
+        iconClassName: 'i-ri-message-3-line',
+      },
+      {
+        value: AppModeEnum.CHAT,
+        label: t(($) => $['types.chatbot'], { ns: 'app' }),
+        iconClassName: 'i-ri-message-3-line',
+      },
+      {
+        value: AppModeEnum.AGENT_CHAT,
+        label: t(($) => $['types.agent'], { ns: 'app' }),
+        iconClassName: 'i-ri-robot-3-line',
+      },
+      {
+        value: AppModeEnum.COMPLETION,
+        label: t(($) => $['types.completion'], { ns: 'app' }),
+        iconClassName: 'i-ri-file-4-line',
+      },
+    ],
+    [t],
+  )
 
   return (
     <>
-      <div
-        ref={containerRef}
-        className="relative flex h-0 shrink-0 grow flex-col overflow-y-auto bg-background-body"
-      >
-        {dragging && (
-          <div className="absolute inset-0 z-50 m-0.5 rounded-2xl border-2 border-dashed border-components-dropzone-border-accent bg-[rgba(21,90,239,0.14)] p-2"></div>
-        )}
+      <div className="mx-auto flex h-full min-h-0 w-full max-w-[1634px] overflow-hidden rounded-[20px] border border-white/50 bg-background-body/90 shadow-lg backdrop-blur-sm">
+        <aside className="hidden w-56 shrink-0 border-r border-divider-subtle p-5 md:block">
+          <nav
+            aria-label={t(($) => $['studio.filters.types'], { ns: 'app' })}
+            className="flex flex-col gap-2"
+          >
+            {appTypeOptions.map((option) => {
+              const isSelected = category === option.value
 
-        <StudioListHeader
-          title={
-            <div className="flex items-center">
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  aria-pressed={isSelected}
+                  className={cn(
+                    'flex h-8 w-full items-center gap-2 rounded-lg border-[0.5px] border-transparent px-3 text-left text-[13px] font-medium leading-[18px] text-text-tertiary transition-colors hover:bg-components-main-nav-nav-button-bg-active focus-visible:ring-2 focus-visible:ring-state-accent-solid focus-visible:outline-hidden',
+                    isSelected && 'border-components-main-nav-nav-button-border bg-components-main-nav-nav-button-bg-active text-components-main-nav-nav-button-text-active shadow-xs',
+                  )}
+                  onClick={() => setCategory(option.value)}
+                >
+                  <span aria-hidden className={cn(option.iconClassName, 'size-4 shrink-0')} />
+                  <span className="truncate">{option.label}</span>
+                </button>
+              )
+            })}
+          </nav>
+        </aside>
+        <div ref={containerRef} className="relative flex min-w-0 flex-1 flex-col overflow-y-auto">
+          {dragging && (
+            <div className="absolute inset-0 z-50 m-0.5 rounded-[20px] border-2 border-dashed border-components-dropzone-border-accent bg-[rgba(21,90,239,0.14)] p-2"></div>
+          )}
+
+          <StudioListHeader
+            title={
               <h1 className="text-[18px]/[21.6px] font-semibold text-text-primary">
                 {t(($) => $['menus.apps'], { ns: 'common' })}
               </h1>
-            </div>
-          }
-        >
-          <AppListHeaderFilters
-            category={category}
-            tagIDs={tagIDs}
-            keywords={keywords}
-            creatorIDs={creatorIDs}
-            sortBy={sortBy}
-            onCategoryChange={setCategory}
-            onTagIDsChange={setTagIDs}
-            onKeywordsChange={setKeywords}
-            onCreatorIDsChange={setCreatorIDs}
-            onSortByChange={setSortBy}
-            onCreateBlank={openCreateBlankModal}
-            onCreateTemplate={openCreateTemplateDialog}
-            onImportDSL={openCreateFromDSLModal}
-            onOpenTagManagement={() => setShowTagManagementModal(true)}
-            showCreateButton={canCreateApp}
-          />
-        </StudioListHeader>
-        {showFirstEmptyState ? (
-          <FirstEmptyState
-            onCreateBlank={openCreateBlankModal}
-            onCreateTemplate={openCreateTemplateDialog}
-            onImportDSL={openCreateFromDSLModal}
-            showLearnDify={systemFeatures.enable_learn_app}
-          />
-        ) : (
-          <>
-            {starredApps.length > 0 && (
-              <StarredAppList apps={starredApps} onRefresh={refreshAppLists} />
-            )}
-            <div
-              className={cn(
-                `relative grow content-start ${APP_LIST_GRID_CLASS_NAME}`,
-                !hasAnyApp && 'overflow-hidden',
-              )}
-            >
-              {showSkeleton ? (
-                <AppCardSkeleton count={6} />
-              ) : hasAnyApp ? (
-                apps.map((app) => (
-                  <AppCard
-                    key={app.id}
-                    app={app}
-                    onlineUsers={workflowOnlineUsersMap[app.id] ?? []}
-                    onRefresh={refreshAppLists}
-                    onOpenTagManagement={() => setShowTagManagementModal(true)}
-                  />
-                ))
-              ) : (
-                <Empty />
-              )}
-              {isFetchingNextPage && <AppCardSkeleton count={3} />}
-            </div>
-          </>
-        )}
-
-        {canCreateApp && !showFirstEmptyState && (
-          <div
-            className={`flex items-center justify-center gap-2 py-4 ${dragging ? 'text-text-accent' : 'text-text-quaternary'}`}
-            role="region"
-            aria-label={t(($) => $['newApp.dropDSLToCreateApp'], { ns: 'app' })}
+            }
           >
-            <span className="i-ri-drag-drop-line size-4" />
-            <span className="system-xs-regular">
-              {t(($) => $['newApp.dropDSLToCreateApp'], { ns: 'app' })}
-            </span>
+            <AppListHeaderFilters
+              category={category}
+              tagIDs={tagIDs}
+              keywords={keywords}
+              creatorIDs={creatorIDs}
+              sortBy={sortBy}
+              onCategoryChange={setCategory}
+              onTagIDsChange={setTagIDs}
+              onKeywordsChange={setKeywords}
+              onCreatorIDsChange={setCreatorIDs}
+              onSortByChange={setSortBy}
+              onCreateBlank={openCreateBlankModal}
+              onCreateTemplate={openCreateTemplateDialog}
+              onImportDSL={openCreateFromDSLModal}
+              onOpenTagManagement={() => setShowTagManagementModal(true)}
+              showCreateButton={canCreateApp}
+              showTypeFilter={false}
+            />
+          </StudioListHeader>
+          {showFirstEmptyState ? (
+            <FirstEmptyState
+              onCreateBlank={openCreateBlankModal}
+              onCreateTemplate={openCreateTemplateDialog}
+              onImportDSL={openCreateFromDSLModal}
+              showLearnDify={systemFeatures.enable_learn_app}
+            />
+          ) : (
+            <>
+              {starredApps.length > 0 && (
+                <StarredAppList apps={starredApps} onRefresh={refreshAppLists} />
+              )}
+              <div
+                className={cn(
+                  `relative grow content-start ${APP_LIST_GRID_CLASS_NAME}`,
+                  !hasAnyApp && 'overflow-hidden',
+                )}
+              >
+                {showSkeleton ? (
+                  <AppCardSkeleton count={6} />
+                ) : hasAnyApp ? (
+                  apps.map((app) => (
+                    <AppCard
+                      key={app.id}
+                      app={app}
+                      onlineUsers={workflowOnlineUsersMap[app.id] ?? []}
+                      onRefresh={refreshAppLists}
+                      onOpenTagManagement={() => setShowTagManagementModal(true)}
+                    />
+                  ))
+                ) : (
+                  <Empty />
+                )}
+                {isFetchingNextPage && <AppCardSkeleton count={3} />}
+              </div>
+            </>
+          )}
+
+          {canCreateApp && !showFirstEmptyState && (
+            <div
+              className={`flex items-center justify-center gap-2 py-4 ${dragging ? 'text-text-accent' : 'text-text-quaternary'}`}
+              role="region"
+              aria-label={t(($) => $['newApp.dropDSLToCreateApp'], { ns: 'app' })}
+            >
+              <span aria-hidden className="i-ri-drag-drop-line size-4" />
+              <span className="system-xs-regular">
+                {t(($) => $['newApp.dropDSLToCreateApp'], { ns: 'app' })}
+              </span>
+            </div>
+          )}
+          <CheckModal />
+          <div ref={anchorRef} className="h-0">
+            {' '}
           </div>
-        )}
-        <CheckModal />
-        <div ref={anchorRef} className="h-0">
-          {' '}
+          <AppListTagManagementModal
+            show={showTagManagementModal}
+            onClose={() => setShowTagManagementModal(false)}
+            onTagsChange={refreshAppLists}
+          />
         </div>
-        <AppListTagManagementModal
-          show={showTagManagementModal}
-          onClose={() => setShowTagManagementModal(false)}
-          onTagsChange={refreshAppLists}
-        />
       </div>
 
       <AppListCreationModals

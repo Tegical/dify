@@ -30,6 +30,7 @@ type AppListHeaderFiltersProps = {
   onImportDSL: () => void
   onOpenTagManagement: () => void
   showCreateButton: boolean
+  showTypeFilter?: boolean
 }
 
 export function AppListHeaderFilters({
@@ -48,13 +49,14 @@ export function AppListHeaderFilters({
   onImportDSL,
   onOpenTagManagement,
   showCreateButton,
+  showTypeFilter = true,
 }: AppListHeaderFiltersProps) {
   const { t } = useTranslation()
 
   return (
     <div className="flex flex-wrap items-start justify-between gap-2">
       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-        <AppTypeFilter value={category} onChange={onCategoryChange} />
+        {showTypeFilter && <AppTypeFilter value={category} onChange={onCategoryChange} />}
         <TagFilter
           type="app"
           value={tagIDs}

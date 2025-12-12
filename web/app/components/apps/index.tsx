@@ -189,7 +189,7 @@ const Apps = () => {
         controlHideCreateFromTemplatePanel,
       }}
     >
-      <div className="relative flex h-0 shrink-0 grow flex-col overflow-y-auto bg-background-body">
+      <div className="relative flex h-0 shrink-0 grow flex-col overflow-hidden bg-transparent px-3 py-3 sm:px-6 sm:py-6">
         <List controlRefreshList={controlRefreshList} />
         {isShowTryAppPanel && (
           <TryApp

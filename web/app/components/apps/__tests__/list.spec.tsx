@@ -489,11 +489,6 @@ type AppStarredListQueryOptions = {
   }
 }
 
-const openAppTypeSelect = async (user = userEvent.setup()) => {
-  await user.click(screen.getByRole('button', { name: /^(Types|app\.types\.)/ }))
-  return user
-}
-
 const openAppSortSelect = async (user = userEvent.setup()) => {
   await user.click(screen.getByRole('button', { name: 'Sort by Last modified' }))
   return user
@@ -530,31 +525,20 @@ describe('List', () => {
   describe('Rendering', () => {
     it('should render without crashing', () => {
       const { container } = renderList()
-      expect(screen.getByRole('button', { name: 'Types' }))!.toBeInTheDocument()
+      expect(screen.getByRole('navigation', { name: 'Types' }))!.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'All' }))!.toHaveAttribute('aria-pressed', 'true')
       expect(container.querySelector('.i-ri-filter-3-line')).not.toBeInTheDocument()
     })
 
-    it('should render app type select with all app types', async () => {
+    it('should render all app types in the workspace navigation', () => {
       renderList()
-      await openAppTypeSelect()
 
-      expect(await screen.findByRole('menuitemradio', { name: 'All' }))!.toBeInTheDocument()
-      expect(screen.queryByRole('menuitemradio', { name: 'Types' })).not.toBeInTheDocument()
-      expect(
-        await screen.findByRole('menuitemradio', { name: 'app.types.workflow' }),
-      )!.toBeInTheDocument()
-      expect(
-        await screen.findByRole('menuitemradio', { name: 'app.types.advanced' }),
-      )!.toBeInTheDocument()
-      expect(
-        await screen.findByRole('menuitemradio', { name: 'app.types.chatbot' }),
-      )!.toBeInTheDocument()
-      expect(
-        await screen.findByRole('menuitemradio', { name: 'app.types.agent' }),
-      )!.toBeInTheDocument()
-      expect(
-        await screen.findByRole('menuitemradio', { name: 'app.newApp.completeApp' }),
-      )!.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'All' }))!.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'app.types.workflow' }))!.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'app.types.advanced' }))!.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'app.types.chatbot' }))!.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'app.types.agent' }))!.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'app.types.completion' }))!.toBeInTheDocument()
     })
 
     it('should render search input', () => {
@@ -695,7 +679,7 @@ describe('List', () => {
       expect(screen.getByText('app.firstEmpty.title'))!.toBeInTheDocument()
       expect(screen.getByText('app.firstEmpty.learnDifyTitle'))!.toBeInTheDocument()
       expect(screen.getByText('app.firstEmpty.or'))!.toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Types' }))!.toBeInTheDocument()
+      expect(screen.getByRole('navigation', { name: 'Types' }))!.toBeInTheDocument()
       expect(screen.queryByTestId('new-app-card')).not.toBeInTheDocument()
       expect(screen.queryByTestId('empty-state')).not.toBeInTheDocument()
     })
@@ -738,7 +722,7 @@ describe('List', () => {
       renderList()
 
       expect(screen.queryByText('app.firstEmpty.title')).not.toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Types' }))!.toBeInTheDocument()
+      expect(screen.getByRole('navigation', { name: 'Types' }))!.toBeInTheDocument()
     })
 
     it('should keep the regular empty state for empty filtered results', () => {
@@ -748,7 +732,7 @@ describe('List', () => {
       renderList()
 
       expect(screen.getByTestId('empty-state'))!.toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Types' }))!.toBeInTheDocument()
+      expect(screen.getByRole('navigation', { name: 'Types' }))!.toBeInTheDocument()
       expect(screen.queryByTestId('new-app-card')).not.toBeInTheDocument()
       expect(screen.queryByText('app.firstEmpty.title')).not.toBeInTheDocument()
     })
@@ -778,32 +762,31 @@ describe('List', () => {
     })
   })
 
-  describe('App Type Select', () => {
-    it('should render selected category in the trigger', () => {
+  describe('App Type Navigation', () => {
+    it('should mark the selected category as pressed', () => {
       mockQueryState.category = AppModeEnum.WORKFLOW
 
       renderList()
 
-      expect(screen.getByRole('button', { name: 'app.types.workflow' }))!.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'app.types.workflow' }))!.toHaveAttribute(
+        'aria-pressed',
+        'true',
+      )
     })
 
-    it('should update category when workflow option is selected', async () => {
-      const user = userEvent.setup()
+    it('should update category when workflow navigation is selected', () => {
       renderList()
-      await openAppTypeSelect(user)
 
-      await user.click(await screen.findByRole('menuitemradio', { name: 'app.types.workflow' }))
+      fireEvent.click(screen.getByRole('button', { name: 'app.types.workflow' }))
 
       expect(mockSetCategory).toHaveBeenCalledWith(AppModeEnum.WORKFLOW)
     })
 
-    it('should update category when all option is selected', async () => {
-      const user = userEvent.setup()
+    it('should update category when all navigation is selected', () => {
       mockQueryState.category = AppModeEnum.WORKFLOW
       renderList()
-      await openAppTypeSelect(user)
 
-      await user.click(await screen.findByRole('menuitemradio', { name: 'All' }))
+      fireEvent.click(screen.getByRole('button', { name: 'All' }))
 
       expect(mockSetCategory).toHaveBeenCalledWith('all')
     })
@@ -1008,11 +991,11 @@ describe('List', () => {
   describe('Edge Cases', () => {
     it('should handle multiple renders without issues', () => {
       const { unmount } = renderList()
-      expect(screen.getByRole('button', { name: 'Types' }))!.toBeInTheDocument()
+      expect(screen.getByRole('navigation', { name: 'Types' }))!.toBeInTheDocument()
 
       unmount()
       renderList()
-      expect(screen.getByRole('button', { name: 'Types' }))!.toBeInTheDocument()
+      expect(screen.getByRole('navigation', { name: 'Types' }))!.toBeInTheDocument()
     })
 
     it('should render app cards correctly', () => {
@@ -1046,44 +1029,31 @@ describe('List', () => {
     })
   })
 
-  describe('App Type Select Options', () => {
-    it('should render all app type options', async () => {
+  describe('App Type Navigation Options', () => {
+    it('should render all app type options', () => {
       renderList()
-      await openAppTypeSelect()
 
-      expect(await screen.findByRole('menuitemradio', { name: 'All' }))!.toBeInTheDocument()
-      expect(
-        await screen.findByRole('menuitemradio', { name: 'app.types.workflow' }),
-      )!.toBeInTheDocument()
-      expect(
-        await screen.findByRole('menuitemradio', { name: 'app.types.advanced' }),
-      )!.toBeInTheDocument()
-      expect(
-        await screen.findByRole('menuitemradio', { name: 'app.types.chatbot' }),
-      )!.toBeInTheDocument()
-      expect(
-        await screen.findByRole('menuitemradio', { name: 'app.types.agent' }),
-      )!.toBeInTheDocument()
-      expect(
-        await screen.findByRole('menuitemradio', { name: 'app.newApp.completeApp' }),
-      )!.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'All' }))!.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'app.types.workflow' }))!.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'app.types.advanced' }))!.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'app.types.chatbot' }))!.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'app.types.agent' }))!.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'app.types.completion' }))!.toBeInTheDocument()
     })
 
-    it('should update category for each app type option click', async () => {
+    it('should update category for each app type navigation click', () => {
       const appTypeTexts = [
         { mode: AppModeEnum.WORKFLOW, text: 'app.types.workflow' },
         { mode: AppModeEnum.ADVANCED_CHAT, text: 'app.types.advanced' },
         { mode: AppModeEnum.CHAT, text: 'app.types.chatbot' },
         { mode: AppModeEnum.AGENT_CHAT, text: 'app.types.agent' },
-        { mode: AppModeEnum.COMPLETION, text: 'app.newApp.completeApp' },
+        { mode: AppModeEnum.COMPLETION, text: 'app.types.completion' },
       ]
 
       for (const { mode, text } of appTypeTexts) {
-        const user = userEvent.setup()
         const { unmount } = renderList()
-        await openAppTypeSelect(user)
         mockSetCategory.mockClear()
-        await user.click(await screen.findByRole('menuitemradio', { name: text }))
+        fireEvent.click(screen.getByRole('button', { name: text }))
         expect(mockSetCategory).toHaveBeenCalledWith(mode)
         unmount()
       }

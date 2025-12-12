@@ -537,16 +537,16 @@ describe('Apps', () => {
   })
 
   describe('Styling', () => {
-    it('should have overflow-y-auto class', () => {
+    it('should keep the visual shell constrained without becoming a second scroll container', () => {
       const { container } = renderWithClient(<Apps />)
       const wrapper = container.firstChild as HTMLElement
-      expect(wrapper).toHaveClass('overflow-y-auto')
+      expect(wrapper).toHaveClass('overflow-hidden', 'px-3', 'sm:px-6')
     })
 
-    it('should have background styling', () => {
+    it('should allow the customized page background to show through', () => {
       const { container } = renderWithClient(<Apps />)
       const wrapper = container.firstChild as HTMLElement
-      expect(wrapper).toHaveClass('bg-background-body')
+      expect(wrapper).toHaveClass('bg-transparent')
     })
   })
 })
