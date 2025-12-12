@@ -87,7 +87,8 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
   const [currentWorkspace, setCurrentWorkspace] = useState<ICurrentWorkspace>(initialWorkspaceInfo)
   const isCurrentWorkspaceManager = useMemo(() => ['owner', 'admin'].includes(currentWorkspace.role), [currentWorkspace.role])
   const isCurrentWorkspaceOwner = useMemo(() => currentWorkspace.role === 'owner', [currentWorkspace.role])
-  const isCurrentWorkspaceEditor = useMemo(() => ['owner', 'admin', 'editor'].includes(currentWorkspace.role), [currentWorkspace.role])
+  // 允许 normal 用户也能创建和管理自己的应用
+  const isCurrentWorkspaceEditor = useMemo(() => ['owner', 'admin', 'editor', 'normal'].includes(currentWorkspace.role), [currentWorkspace.role])
   const isCurrentWorkspaceDatasetOperator = useMemo(() => currentWorkspace.role === 'dataset_operator', [currentWorkspace.role])
   const updateUserProfileAndVersion = useCallback(async () => {
     if (userProfileResponse && !userProfileResponse.bodyUsed) {
