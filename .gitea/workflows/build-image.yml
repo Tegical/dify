@@ -17,6 +17,8 @@ jobs:
       HARBOR_PROJECT: ${{ vars.HARBOR_PROJECT }}
       HARBOR_USERNAME: ${{ secrets.HARBOR_USERNAME }}
       HARBOR_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
+      PYPI_INDEX_URL: ${{ vars.PYPI_INDEX_URL }}
+      UV_DEFAULT_INDEX: ${{ vars.UV_DEFAULT_INDEX }}
 
     steps:
       - name: Checkout repository
@@ -74,6 +76,8 @@ jobs:
           set -euo pipefail
           export DOCKER_DEFAULT_PLATFORM="${TARGET_PLATFORM}"
           docker build \
+            --build-arg "PIP_INDEX_URL=${PYPI_INDEX_URL}" \
+            --build-arg "UV_DEFAULT_INDEX=${UV_DEFAULT_INDEX}" \
             -f api/Dockerfile \
             -t "${IMAGE_BASE}:${IMAGE_TAG_RELEASE}" \
             -t "${IMAGE_BASE}:${IMAGE_TAG_BRANCH}" \
