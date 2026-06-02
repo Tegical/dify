@@ -69,6 +69,7 @@ RUN \
         ca-certificates \
         curl \
         gnupg \
+        unzip \
     && mkdir -p /etc/apt/keyrings \
     && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key -o /tmp/nodesource.gpg \
     && gpg --show-keys --with-colons /tmp/nodesource.gpg \
@@ -102,8 +103,18 @@ COPY --from=packages --chown=dify:dify ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
 # Download nltk data
-RUN mkdir -p /usr/local/share/nltk_data \
-    && NLTK_DATA=/usr/local/share/nltk_data python -c "import nltk; nltk.download('punkt'); nltk.download('averaged_perceptron_tagger'); nltk.download('stopwords')" \
+RUN set -euo pipefail \
+    && mkdir -p /usr/local/share/nltk_data/tokenizers /usr/local/share/nltk_data/corpora \
+    && curl -fsSL --retry 3 --retry-delay 2 \
+      https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/tokenizers/punkt.zip \
+      -o /tmp/punkt.zip \
+    && unzip -q /tmp/punkt.zip -d /usr/local/share/nltk_data/tokenizers \
+    && rm -f /tmp/punkt.zip \
+    && curl -fsSL --retry 3 --retry-delay 2 \
+      https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/corpora/stopwords.zip \
+      -o /tmp/stopwords.zip \
+    && unzip -q /tmp/stopwords.zip -d /usr/local/share/nltk_data/corpora \
+    && rm -f /tmp/stopwords.zip \
     && chmod -R 755 /usr/local/share/nltk_data
 
 ENV TIKTOKEN_CACHE_DIR=/app/api/.tiktoken_cache
