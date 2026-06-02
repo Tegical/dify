@@ -75,7 +75,7 @@ COPY --from=packages ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
 # Download nltk data
-RUN set -euo pipefail \
+RUN set -eu \
     && mkdir -p /root/nltk_data/tokenizers /root/nltk_data/corpora \
     && curl -fsSL --retry 3 --retry-delay 2 \
       https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/tokenizers/punkt.zip \
