@@ -5,10 +5,8 @@ WORKDIR /app/api
 
 # Install uv
 ENV UV_VERSION=0.8.9
-ARG PIP_INDEX_URL=
-ARG UV_DEFAULT_INDEX=
-ENV PIP_INDEX_URL=${PIP_INDEX_URL}
-ENV UV_DEFAULT_INDEX=${UV_DEFAULT_INDEX}
+ENV PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/
+ENV UV_DEFAULT_INDEX=https://mirrors.aliyun.com/pypi/simple/
 
 RUN pip install --no-cache-dir uv==${UV_VERSION}
 
