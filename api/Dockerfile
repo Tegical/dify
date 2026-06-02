@@ -8,6 +8,7 @@ ENV UV_VERSION=0.8.9
 ENV PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/
 ENV UV_DEFAULT_INDEX=https://mirrors.aliyun.com/pypi/simple/
 ENV UV_HTTP_TIMEOUT=120
+ARG NLTK_DATA_BASE_URL=https://v4.gh-proxy.org/https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages
 
 RUN pip install --no-cache-dir uv==${UV_VERSION}
 
@@ -80,12 +81,12 @@ ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 RUN set -eu \
     && mkdir -p /root/nltk_data/tokenizers /root/nltk_data/corpora \
     && curl -fsSL --retry 3 --retry-delay 2 \
-      https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/tokenizers/punkt.zip \
+      ${NLTK_DATA_BASE_URL}/tokenizers/punkt.zip \
       -o /tmp/punkt.zip \
     && unzip -q /tmp/punkt.zip -d /root/nltk_data/tokenizers \
     && rm -f /tmp/punkt.zip \
     && curl -fsSL --retry 3 --retry-delay 2 \
-      https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/corpora/stopwords.zip \
+      ${NLTK_DATA_BASE_URL}/corpora/stopwords.zip \
       -o /tmp/stopwords.zip \
     && unzip -q /tmp/stopwords.zip -d /root/nltk_data/corpora \
     && rm -f /tmp/stopwords.zip
