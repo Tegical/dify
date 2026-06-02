@@ -1,0 +1,208 @@
+name: Build And Push Aether Lab Dify Images
+
+on:
+  push:
+    tags:
+      - 'v*'
+      - 'release-*'
+
+jobs:
+  build-api:
+    runs-on: ubuntu-latest
+    env:
+      EXPECTED_BRANCH: dev
+      IMAGE_REPOSITORY: aether-lab-dify-api
+      TARGET_PLATFORM: linux/amd64
+      HARBOR_REGISTRY: ${{ vars.HARBOR_REGISTRY }}
+      HARBOR_PROJECT: ${{ vars.HARBOR_PROJECT }}
+      HARBOR_USERNAME: ${{ secrets.HARBOR_USERNAME }}
+      HARBOR_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
+
+    steps:
+      - name: Checkout repository
+        uses: https://gitea.com/actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate tag belongs to custom Dify branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG_NAME="${GITHUB_REF_NAME:-${GITHUB_REF##*/}}"
+          TAG_SHA="$(git rev-list -n 1 "$TAG_NAME")"
+          git fetch origin "${EXPECTED_BRANCH}"
+          if ! git merge-base --is-ancestor "$TAG_SHA" "origin/${EXPECTED_BRANCH}"; then
+            echo "tag ${TAG_NAME} (${TAG_SHA}) does not belong to origin/${EXPECTED_BRANCH}" >&2
+            exit 1
+          fi
+          SHORT_SHA="$(git rev-parse --short "$TAG_SHA")"
+          echo "TAG_NAME=$TAG_NAME" >> "$GITHUB_ENV"
+          echo "TAG_SHA=$TAG_SHA" >> "$GITHUB_ENV"
+          echo "SHORT_SHA=$SHORT_SHA" >> "$GITHUB_ENV"
+
+      - name: Validate Docker and secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v docker >/dev/null 2>&1 || { echo 'docker is required on runner' >&2; exit 1; }
+          : "${HARBOR_REGISTRY:?Missing var HARBOR_REGISTRY}"
+          : "${HARBOR_PROJECT:?Missing var HARBOR_PROJECT}"
+          : "${HARBOR_USERNAME:?Missing secret HARBOR_USERNAME}"
+          : "${HARBOR_PASSWORD:?Missing secret HARBOR_PASSWORD}"
+          test -f api/Dockerfile || { echo 'api/Dockerfile not found' >&2; exit 1; }
+
+      - name: Login Harbor
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "${HARBOR_PASSWORD}" | docker login "${HARBOR_REGISTRY}" --username "${HARBOR_USERNAME}" --password-stdin
+
+      - name: Derive image refs
+        shell: bash
+        run: |
+          set -euo pipefail
+          IMAGE_BASE="${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_REPOSITORY}"
+          IMAGE_TAG_RELEASE="${TAG_NAME}"
+          IMAGE_TAG_BRANCH="${EXPECTED_BRANCH}-${SHORT_SHA}"
+          echo "IMAGE_BASE=$IMAGE_BASE" >> "$GITHUB_ENV"
+          echo "IMAGE_TAG_RELEASE=$IMAGE_TAG_RELEASE" >> "$GITHUB_ENV"
+          echo "IMAGE_TAG_BRANCH=$IMAGE_TAG_BRANCH" >> "$GITHUB_ENV"
+
+      - name: Build API image
+        shell: bash
+        run: |
+          set -euo pipefail
+          export DOCKER_DEFAULT_PLATFORM="${TARGET_PLATFORM}"
+          docker build \
+            -f api/Dockerfile \
+            -t "${IMAGE_BASE}:${IMAGE_TAG_RELEASE}" \
+            -t "${IMAGE_BASE}:${IMAGE_TAG_BRANCH}" \
+            api
+
+      - name: Push API image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker push "${IMAGE_BASE}:${IMAGE_TAG_RELEASE}"
+          docker push "${IMAGE_BASE}:${IMAGE_TAG_BRANCH}"
+
+      - name: Capture API image metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          DIGEST="$(docker image inspect --format='{{index .RepoDigests 0}}' "${IMAGE_BASE}:${IMAGE_TAG_RELEASE}")"
+          cat > api-image-metadata.json <<EOF
+          {
+            "repo": "aether-lab-dify",
+            "component": "api",
+            "expected_branch": "${EXPECTED_BRANCH}",
+            "git_tag": "${TAG_NAME}",
+            "git_sha": "${TAG_SHA}",
+            "git_short_sha": "${SHORT_SHA}",
+            "target_platform": "${TARGET_PLATFORM}",
+            "image_release": "${IMAGE_BASE}:${IMAGE_TAG_RELEASE}",
+            "image_branch": "${IMAGE_BASE}:${IMAGE_TAG_BRANCH}",
+            "image_digest": "${DIGEST}"
+          }
+          EOF
+          cat api-image-metadata.json
+
+  build-web:
+    runs-on: ubuntu-latest
+    env:
+      EXPECTED_BRANCH: dev
+      IMAGE_REPOSITORY: aether-lab-dify-web
+      TARGET_PLATFORM: linux/amd64
+      HARBOR_REGISTRY: ${{ vars.HARBOR_REGISTRY }}
+      HARBOR_PROJECT: ${{ vars.HARBOR_PROJECT }}
+      HARBOR_USERNAME: ${{ secrets.HARBOR_USERNAME }}
+      HARBOR_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
+
+    steps:
+      - name: Checkout repository
+        uses: https://gitea.com/actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate tag belongs to custom Dify branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG_NAME="${GITHUB_REF_NAME:-${GITHUB_REF##*/}}"
+          TAG_SHA="$(git rev-list -n 1 "$TAG_NAME")"
+          git fetch origin "${EXPECTED_BRANCH}"
+          if ! git merge-base --is-ancestor "$TAG_SHA" "origin/${EXPECTED_BRANCH}"; then
+            echo "tag ${TAG_NAME} (${TAG_SHA}) does not belong to origin/${EXPECTED_BRANCH}" >&2
+            exit 1
+          fi
+          SHORT_SHA="$(git rev-parse --short "$TAG_SHA")"
+          echo "TAG_NAME=$TAG_NAME" >> "$GITHUB_ENV"
+          echo "TAG_SHA=$TAG_SHA" >> "$GITHUB_ENV"
+          echo "SHORT_SHA=$SHORT_SHA" >> "$GITHUB_ENV"
+
+      - name: Validate Docker and secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v docker >/dev/null 2>&1 || { echo 'docker is required on runner' >&2; exit 1; }
+          : "${HARBOR_REGISTRY:?Missing var HARBOR_REGISTRY}"
+          : "${HARBOR_PROJECT:?Missing var HARBOR_PROJECT}"
+          : "${HARBOR_USERNAME:?Missing secret HARBOR_USERNAME}"
+          : "${HARBOR_PASSWORD:?Missing secret HARBOR_PASSWORD}"
+          test -f web/Dockerfile || { echo 'web/Dockerfile not found' >&2; exit 1; }
+
+      - name: Login Harbor
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "${HARBOR_PASSWORD}" | docker login "${HARBOR_REGISTRY}" --username "${HARBOR_USERNAME}" --password-stdin
+
+      - name: Derive image refs
+        shell: bash
+        run: |
+          set -euo pipefail
+          IMAGE_BASE="${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_REPOSITORY}"
+          IMAGE_TAG_RELEASE="${TAG_NAME}"
+          IMAGE_TAG_BRANCH="${EXPECTED_BRANCH}-${SHORT_SHA}"
+          echo "IMAGE_BASE=$IMAGE_BASE" >> "$GITHUB_ENV"
+          echo "IMAGE_TAG_RELEASE=$IMAGE_TAG_RELEASE" >> "$GITHUB_ENV"
+          echo "IMAGE_TAG_BRANCH=$IMAGE_TAG_BRANCH" >> "$GITHUB_ENV"
+
+      - name: Build Web image
+        shell: bash
+        run: |
+          set -euo pipefail
+          export DOCKER_DEFAULT_PLATFORM="${TARGET_PLATFORM}"
+          docker build \
+            -f web/Dockerfile \
+            -t "${IMAGE_BASE}:${IMAGE_TAG_RELEASE}" \
+            -t "${IMAGE_BASE}:${IMAGE_TAG_BRANCH}" \
+            web
+
+      - name: Push Web image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker push "${IMAGE_BASE}:${IMAGE_TAG_RELEASE}"
+          docker push "${IMAGE_BASE}:${IMAGE_TAG_BRANCH}"
+
+      - name: Capture Web image metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          DIGEST="$(docker image inspect --format='{{index .RepoDigests 0}}' "${IMAGE_BASE}:${IMAGE_TAG_RELEASE}")"
+          cat > web-image-metadata.json <<EOF
+          {
+            "repo": "aether-lab-dify",
+            "component": "web",
+            "expected_branch": "${EXPECTED_BRANCH}",
+            "git_tag": "${TAG_NAME}",
+            "git_sha": "${TAG_SHA}",
+            "git_short_sha": "${SHORT_SHA}",
+            "target_platform": "${TARGET_PLATFORM}",
+            "image_release": "${IMAGE_BASE}:${IMAGE_TAG_RELEASE}",
+            "image_branch": "${IMAGE_BASE}:${IMAGE_TAG_BRANCH}",
+            "image_digest": "${DIGEST}"
+          }
+          EOF
+          cat web-image-metadata.json
