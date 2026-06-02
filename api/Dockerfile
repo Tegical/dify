@@ -103,7 +103,7 @@ COPY --from=packages --chown=dify:dify ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
 # Download nltk data
-RUN set -euo pipefail \
+RUN set -eu \
     && mkdir -p /usr/local/share/nltk_data/tokenizers /usr/local/share/nltk_data/corpora \
     && curl -fsSL --retry 3 --retry-delay 2 \
       https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/tokenizers/punkt.zip \
