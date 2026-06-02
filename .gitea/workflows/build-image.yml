@@ -68,29 +68,32 @@ jobs:
           echo "IMAGE_TAG_RELEASE=$IMAGE_TAG_RELEASE" >> "$GITHUB_ENV"
           echo "IMAGE_TAG_BRANCH=$IMAGE_TAG_BRANCH" >> "$GITHUB_ENV"
 
-      - name: Build API image
+      - name: Set up buildx for API image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker buildx create --name aether-dify-api-builder --use || docker buildx use aether-dify-api-builder
+          docker buildx inspect --bootstrap
+
+      - name: Build and push API image
         shell: bash
         run: |
           set -euo pipefail
           export DOCKER_DEFAULT_PLATFORM="${TARGET_PLATFORM}"
-          docker build \
+          docker buildx build \
+            --platform "${TARGET_PLATFORM}" \
+            --push \
             -f api/Dockerfile \
             -t "${IMAGE_BASE}:${IMAGE_TAG_RELEASE}" \
             -t "${IMAGE_BASE}:${IMAGE_TAG_BRANCH}" \
             api
 
-      - name: Push API image
-        shell: bash
-        run: |
-          set -euo pipefail
-          docker push "${IMAGE_BASE}:${IMAGE_TAG_RELEASE}"
-          docker push "${IMAGE_BASE}:${IMAGE_TAG_BRANCH}"
-
       - name: Capture API image metadata
         shell: bash
         run: |
           set -euo pipefail
-          DIGEST="$(docker image inspect --format='{{index .RepoDigests 0}}' "${IMAGE_BASE}:${IMAGE_TAG_RELEASE}")"
+          DIGEST="$(docker buildx imagetools inspect "${IMAGE_BASE}:${IMAGE_TAG_RELEASE}" --format '{{json .Manifest}}' | python3 -c 'import json,sys; data=json.load(sys.stdin); print(data.get("digest",""))')"
+          [ -n "$DIGEST" ] || { echo 'failed to resolve pushed API image digest' >&2; exit 1; }
           cat > api-image-metadata.json <<EOF
           {
             "repo": "aether-lab-dify",
