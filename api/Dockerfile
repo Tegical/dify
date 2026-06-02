@@ -94,6 +94,8 @@ RUN \
         media-types \
         # install libmagic to support the use of python-magic guess MIMETYPE
         libmagic1 \
+        # unzip preloaded nltk zip resources
+        unzip \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 
