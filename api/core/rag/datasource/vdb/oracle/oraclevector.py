@@ -301,9 +301,11 @@ class OracleVector(BaseVector):
                 try:
                     nltk.data.find("tokenizers/punkt")
                     nltk.data.find("corpora/stopwords")
-                except LookupError:
-                    nltk.download("punkt")
-                    nltk.download("stopwords")
+                except LookupError as exc:
+                    raise RuntimeError(
+                        "Required NLTK resources are missing: tokenizers/punkt and/or corpora/stopwords. "
+                        "Preload them into nltk_data for the API image instead of downloading at runtime."
+                    ) from exc
                 e_str = re.sub(r"[^\w ]", "", query)
                 all_tokens = nltk.word_tokenize(e_str)
                 stop_words = stopwords.words("english")

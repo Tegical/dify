@@ -75,7 +75,18 @@ COPY --from=packages ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
 # Download nltk data
-RUN python -c "import nltk; nltk.download('punkt'); nltk.download('averaged_perceptron_tagger')"
+RUN set -euo pipefail \
+    && mkdir -p /root/nltk_data/tokenizers /root/nltk_data/corpora \
+    && curl -fsSL --retry 3 --retry-delay 2 \
+      https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/tokenizers/punkt.zip \
+      -o /tmp/punkt.zip \
+    && unzip -q /tmp/punkt.zip -d /root/nltk_data/tokenizers \
+    && rm -f /tmp/punkt.zip \
+    && curl -fsSL --retry 3 --retry-delay 2 \
+      https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/corpora/stopwords.zip \
+      -o /tmp/stopwords.zip \
+    && unzip -q /tmp/stopwords.zip -d /root/nltk_data/corpora \
+    && rm -f /tmp/stopwords.zip
 
 ENV TIKTOKEN_CACHE_DIR=/app/api/.tiktoken_cache
 
