@@ -19,11 +19,11 @@ RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debia
           # basic environment
           g++ \
           # for building gmpy2
-          libmpfr-dev libmpc-dev
+          libgmp-dev libmpfr-dev libmpc-dev
 
 # Install Python dependencies
 COPY pyproject.toml uv.lock ./
-RUN uv sync --locked --no-dev
+RUN uv sync --frozen --no-dev
 
 # production stage
 FROM base AS production
