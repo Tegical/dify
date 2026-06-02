@@ -19,7 +19,7 @@ RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debia
           # basic environment
           git g++ \
           # for building gmpy2
-          libmpfr-dev libmpc-dev
+          libgmp-dev libmpfr-dev libmpc-dev
 
 # Install Python dependencies (workspace members under providers/vdb/)
 COPY api/pyproject.toml api/uv.lock ./
