@@ -426,6 +426,20 @@ describe('Console bootstrap', () => {
       expect(screen.getByText('dataset operator:false')).toBeInTheDocument()
     })
 
+    it('should treat normal workspace members as editors without granting management permissions', async () => {
+      mockCurrentWorkspaceQueryState.data = {
+        ...mockCurrentWorkspaceResponse,
+        role: 'normal',
+      }
+
+      renderConsoleBootstrap()
+
+      expect(await screen.findByText('manager:false')).toBeInTheDocument()
+      expect(screen.getByText('owner:false')).toBeInTheDocument()
+      expect(screen.getByText('editor:true')).toBeInTheDocument()
+      expect(screen.getByText('dataset operator:false')).toBeInTheDocument()
+    })
+
     it('should expose query loading state', async () => {
       mockPermissionKeysState.isPending = true
       mockCurrentWorkspaceQueryState.isPending = true

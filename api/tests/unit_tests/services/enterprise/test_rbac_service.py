@@ -662,6 +662,17 @@ class TestMyPermissions:
         mock_send.assert_not_called()
         assert actual_snippet_keys == expected_snippet_keys
 
+    def test_get_allows_normal_members_to_create_apps_when_rbac_disabled(self, mock_send: MagicMock):
+        mock_session = MagicMock()
+        mock_session.__enter__.return_value = mock_session
+        mock_session.scalar.return_value = "normal"
+
+        with patch(f"{MODULE}.dify_config.RBAC_ENABLED", False):
+            out = svc.RBACService.MyPermissions.get("tenant-1", "acct-1", session=mock_session)
+
+        mock_send.assert_not_called()
+        assert "app.create_and_management" in out.workspace.permission_keys
+
     def test_get_returns_empty_when_role_missing_and_rbac_disabled(self, mock_send: MagicMock):
         mock_session = MagicMock()
         mock_session.__enter__.return_value = mock_session

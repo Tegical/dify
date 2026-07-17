@@ -68,7 +68,9 @@ export function getWorkspaceRoleFlags(currentWorkspace: ICurrentWorkspace): Work
   return {
     isCurrentWorkspaceManager: ['owner', 'admin'].includes(currentWorkspace.role),
     isCurrentWorkspaceOwner: currentWorkspace.role === 'owner',
-    isCurrentWorkspaceEditor: ['owner', 'admin', 'editor'].includes(currentWorkspace.role),
+    isCurrentWorkspaceEditor: ['owner', 'admin', 'editor', 'normal'].includes(
+      currentWorkspace.role,
+    ),
     isCurrentWorkspaceDatasetOperator: currentWorkspace.role === 'dataset_operator',
   }
 }

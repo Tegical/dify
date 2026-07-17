@@ -387,6 +387,7 @@ _LEGACY_WORKSPACE_NORMAL_KEYS: list[str] = [
     "plugin.install",
     "credential.use",
     "app_library.access",
+    "app.create_and_management",
     "billing.view",
     "billing.subscription.manage",
     "billing.manage",
