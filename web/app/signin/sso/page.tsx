@@ -1,9 +1,9 @@
 'use client'
 
-import { useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import Loading from '@/app/components/base/loading'
 import { API_PREFIX } from '@/config'
+import { useSearchParams } from '@/next/navigation'
 import { getPurifyHref } from '@/utils'
 
 /**
