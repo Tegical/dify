@@ -5,6 +5,7 @@
 ## 📋 分支管理
 
 ### 查看分支状态
+
 ```bash
 # 查看所有分支及跟踪关系
 git branch -vv
@@ -18,6 +19,7 @@ git log --graph --oneline --all -20
 ```
 
 ### 创建备份
+
 ```bash
 # 备份当前分支（带时间戳）
 git branch dev-backup-$(date +%Y%m%d) dev
@@ -27,6 +29,7 @@ git branch | grep backup
 ```
 
 ### 清理旧备份
+
 ```bash
 # 列出所有备份分支
 git branch | grep backup
@@ -394,6 +397,7 @@ git clean -fd
 ```
 
 使用示例：
+
 ```bash
 git st               # status
 git co dev          # checkout dev

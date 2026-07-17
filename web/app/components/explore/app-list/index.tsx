@@ -293,12 +293,7 @@ const Apps = ({ onSuccess }: { onSuccess?: () => void }) => {
             />
 
             <div className={cn('relative flex flex-1 shrink-0 grow flex-col pb-6')}>
-              <nav
-                className={cn(
-                  s.appList,
-                  'grid shrink-0 content-start gap-4 px-5 pb-6 sm:px-8',
-                )}
-              >
+              <nav className={cn(s.appList, 'grid shrink-0 content-start gap-4 px-5 pb-6 sm:px-8')}>
                 {searchFilteredList.map((app) => (
                   <AppCard
                     key={app.app_id}

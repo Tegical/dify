@@ -14,15 +14,19 @@
 ## 🎯 使用场景
 
 ### 场景 1: 准备升级 Dify 版本
+
 👉 阅读 [version-upgrade.md](./version-upgrade.md)，按照场景选择合适的升级策略
 
 ### 场景 2: 了解当前做了哪些自定义
+
 👉 查看 [customizations/](./customizations/)，了解所有修改内容和历史记录
 
 ### 场景 3: AI Agent 执行任务前
+
 👉 先阅读 [index.md](./index.md)，了解项目当前状态
 
 ### 场景 4: 新团队成员入职
+
 👉 按顺序阅读：index.md → customizations/README.md → version-upgrade.md
 
 ## 🔄 当前分支策略
@@ -44,22 +48,26 @@ Dify 官方仓库                     Tegical Fork
 ## ⚡ 快速命令参考
 
 ### 查看当前版本信息
+
 ```bash
 git log --oneline -1
 git branch -vv
 ```
 
 ### 备份当前分支
+
 ```bash
 git branch dev-backup-$(date +%Y%m%d) dev
 ```
 
 ### 查看自定义修改的文件列表
+
 ```bash
 git diff release/1.10.0 --name-only
 ```
 
 ### 查看远程分支
+
 ```bash
 git fetch origin
 git branch -r | grep release
@@ -89,6 +97,7 @@ git branch -r | grep release
 ## 📧 联系方式
 
 如有问题或建议，请联系：
+
 - 项目负责人：[待补充]
 - 技术负责人：[待补充]
 

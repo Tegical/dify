@@ -27,6 +27,7 @@ main 分支独立发展，不影响 dev 分支。
 **适用情况**：Dify 官方发布新版本时创建了 `release/X.Y.Z` 分支
 
 **优点**：
+
 - 基于稳定的发布版本
 - 避免 main 分支的不稳定更新
 - 版本追踪清晰
@@ -114,10 +115,12 @@ git checkout -b release/1.20.0 v1.20.0
 **适用情况**：希望保持提交历史连续性
 
 **优点**：
+
 - 提交历史更清晰
 - 可以看到自定义修改的演进过程
 
 **缺点**：
+
 - 可能遇到多次冲突需要解决
 - 需要强制推送
 
@@ -151,6 +154,7 @@ git push origin dev --force-with-lease
 ```
 
 **如果 rebase 出错想放弃**：
+
 ```bash
 git rebase --abort
 git checkout dev-1.10.0-backup
@@ -192,6 +196,7 @@ git push origin dev
 升级完成后，必须进行以下验证：
 
 ### 1. Git 状态检查
+
 ```bash
 # 检查分支状态
 git branch -vv
@@ -204,6 +209,7 @@ git status
 ```
 
 ### 2. 前端验证
+
 ```bash
 cd web
 
@@ -224,6 +230,7 @@ pnpm dev
 ```
 
 ### 3. 后端验证
+
 ```bash
 cd api
 
@@ -243,6 +250,7 @@ uv run --dev dev/pytest/pytest_unit_tests.sh
 ### 4. 功能验证
 
 手动测试以下功能：
+
 - [ ] UI 自定义是否生效（header、footer、branding）
 - [ ] 应用创建和运行
 - [ ] 数据集管理
@@ -269,6 +277,7 @@ docker-compose up -d
 ### Q1: cherry-pick 或 rebase 时遇到大量冲突怎么办？
 
 **解决方案**：
+
 ```bash
 # 1. 放弃当前操作
 git cherry-pick --abort  # 或 git rebase --abort
@@ -280,6 +289,7 @@ git cherry-pick --abort  # 或 git rebase --abort
 ### Q2: 升级后发现新版本有 Bug 需要回退
 
 **解决方案**：
+
 ```bash
 # 1. 切回备份分支
 git checkout dev-1.10.0-backup
@@ -292,6 +302,7 @@ git push origin dev --force-with-lease
 ### Q3: 自定义的文件在新版本中被重构了
 
 **解决方案**：
+
 1. 查看新版本的文件结构变化
 2. 手动将自定义逻辑迁移到新的文件结构
 3. 更新 `customizations.md` 文档记录新的自定义位置
@@ -299,6 +310,7 @@ git push origin dev --force-with-lease
 ### Q4: 忘记备份就强制推送了怎么办？
 
 **解决方案**：
+
 ```bash
 # 1. 查看 reflog 找到之前的提交
 git reflog
@@ -312,8 +324,8 @@ git branch dev-backup
 
 ## 版本升级历史记录
 
-| 时间 | 从版本 | 到版本 | 执行人 | 备注 |
-|------|--------|--------|--------|------|
+| 时间       | 从版本           | 到版本                     | 执行人 | 备注                                  |
+| ---------- | ---------------- | -------------------------- | ------ | ------------------------------------- |
 | 2025-11-24 | main (c74ebcd8d) | release/1.10.0 (a47276ac2) | Claude | 初始重建，建立基于 release 的开发流程 |
 
 ## 最佳实践建议

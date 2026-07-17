@@ -353,7 +353,7 @@ class RuoyiOAuth(OAuth):
 
     @override
     def get_access_token(self, code: str) -> str:
-        credentials = f"{self.client_id}:{self.client_secret}".encode("utf-8")
+        credentials = f"{self.client_id}:{self.client_secret}".encode()
         headers = {
             "Authorization": f"Basic {base64.b64encode(credentials).decode('ascii')}",
             "Content-Type": "application/x-www-form-urlencoded",

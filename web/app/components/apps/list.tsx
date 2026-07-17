@@ -1,6 +1,7 @@
 'use client'
 
 import type { GetAppsData } from '@dify/contracts/api/console/apps/types.gen'
+import type { AppListCategory } from './app-type-filter-shared'
 import { cn } from '@langgenius/dify-ui/cn'
 import {
   keepPreviousData,
@@ -26,7 +27,6 @@ import { AppCardSkeleton } from './app-card-skeleton'
 import { AppListCreationModals } from './app-list-creation-modals'
 import { AppListHeaderFilters } from './app-list-header-filters'
 import { AppListTagManagementModal } from './app-list-tag-management-modal'
-import type { AppListCategory } from './app-type-filter-shared'
 import { APP_LIST_GRID_CLASS_NAME, APP_LIST_SEARCH_DEBOUNCE_MS } from './constants'
 import Empty from './empty'
 import FirstEmptyState from './first-empty-state'
@@ -289,8 +289,9 @@ function List({ controlRefreshList = 0 }: Props) {
                   type="button"
                   aria-pressed={isSelected}
                   className={cn(
-                    'flex h-8 w-full items-center gap-2 rounded-lg border-[0.5px] border-transparent px-3 text-left text-[13px] font-medium leading-[18px] text-text-tertiary transition-colors hover:bg-components-main-nav-nav-button-bg-active focus-visible:ring-2 focus-visible:ring-state-accent-solid focus-visible:outline-hidden',
-                    isSelected && 'border-components-main-nav-nav-button-border bg-components-main-nav-nav-button-bg-active text-components-main-nav-nav-button-text-active shadow-xs',
+                    'flex h-8 w-full items-center gap-2 rounded-lg border-[0.5px] border-transparent px-3 text-left text-[13px] leading-[18px] font-medium text-text-tertiary transition-colors hover:bg-components-main-nav-nav-button-bg-active focus-visible:ring-2 focus-visible:ring-state-accent-solid focus-visible:outline-hidden',
+                    isSelected &&
+                      'border-components-main-nav-nav-button-border bg-components-main-nav-nav-button-bg-active text-components-main-nav-nav-button-text-active shadow-xs',
                   )}
                   onClick={() => setCategory(option.value)}
                 >

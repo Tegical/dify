@@ -5,12 +5,15 @@
 ## 文档列表
 
 ### 快速参考
+
 - `QUICK_REFERENCE.md` - 常用命令和操作速查表 ⚡
 
 ### 版本管理
+
 - `version-upgrade.md` - Dify 版本升级指南，记录如何从一个版本升级到另一个版本并保留自定义修改
 
 ### 自定义修改记录
+
 - `customizations/` - 自定义修改历史记录目录，按日期记录每次修改
   - `README.md` - 自定义修改记录索引和使用说明
   - `20251124-initial-customizations.md` - 初始 UI 定制（当前最新）
@@ -18,6 +21,7 @@
 ## 分支策略
 
 当前采用的分支策略：
+
 - `main` - Dify 官方主分支（仅跟踪）
 - `release/X.Y.Z` - Dify 官方发布分支（仅跟踪）
 - `dev` - Tegical 开发分支（基于 release/1.10.0 + 自定义修改）
